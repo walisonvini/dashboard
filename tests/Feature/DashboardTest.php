@@ -12,7 +12,7 @@ class DashboardTest extends TestCase
 
     public function test_guests_are_redirected_to_the_login_page()
     {
-        $response = $this->get('/dashboard');
+        $response = $this->get('/home');
         $response->assertRedirect('/login');
     }
 
@@ -21,7 +21,7 @@ class DashboardTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->get('/dashboard');
+        $response = $this->get('/home');
         $response->assertStatus(200);
     }
 }
