@@ -6,6 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+
+interface Role {
+    id: number;
+    name: string;
+}
+
+const props = defineProps<{
+    roles: Role[]
+}>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -23,7 +33,19 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    roles: [] as string[],
 });
+
+const handleRoleChange = (roleName: string, checked: boolean) => {
+    if (checked) {
+        form.roles.push(roleName);
+    } else {
+        const index = form.roles.indexOf(roleName);
+        if (index > -1) {
+            form.roles.splice(index, 1);
+        }
+    }
+};
 
 const submit = () => {
     form.post(route('users.store'), {
@@ -101,9 +123,25 @@ const submit = () => {
                                 :class="{ 'border-red-500': form.errors.password_confirmation }"
                             />
                         </div>
-                        <p v-if="form.errors.password_confirmation" class="text-sm text-red-500">
-                            {{ form.errors.password_confirmation }}
-                        </p>
+
+                        <div class="space-y-4">
+                            <Label>Roles</Label>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                                <div v-for="role in roles" :key="role.id" class="flex items-center space-x-2">
+                                    <Checkbox
+                                        :id="'role-' + role.id"
+                                        :model-value="form.roles.includes(role.name)"
+                                        @update:modelValue="(checked) => handleRoleChange(role.name, checked)"
+                                    />
+                                    <Label :for="'role-' + role.id" class="text-sm font-normal">
+                                        {{ role.name }}
+                                    </Label>
+                                </div>
+                            </div>
+                            <p v-if="form.errors.roles" class="text-sm text-red-500">
+                                {{ form.errors.roles }}
+                            </p>
+                        </div>
                     </CardContent>
 
                     <CardFooter class="mt-4 flex justify-end gap-2">
