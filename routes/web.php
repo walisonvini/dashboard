@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
-})->name('home');
+})->name('welcome');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('users', UserController::class);

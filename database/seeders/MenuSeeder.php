@@ -1,0 +1,50 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use App\Models\Menu;
+class MenuSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        Menu::create([
+            'name' => 'Home',
+            'icon' => 'Home',
+            'route' => 'home',
+            'parent_id' => null,
+        ]);
+
+        $users = Menu::create([
+            'name' => 'User Management',
+            'icon' => 'Users',
+            'route' => null,
+            'parent_id' => null,
+        ]);
+
+        $users->children()->create([
+            'name' => 'Users',
+            'icon' => null,
+            'route' => 'users',
+            'parent_id' => $users->id,
+        ]);
+
+        $users->children()->create([
+            'name' => 'Roles',
+            'icon' => null,
+            'route' => 'roles',
+            'parent_id' => $users->id,
+        ]);
+
+        $users->children()->create([
+            'name' => 'Role Permissions',
+            'icon' => null,
+            'route' => 'role-permissions',
+            'parent_id' => $users->id,
+        ]);
+    }   
+}

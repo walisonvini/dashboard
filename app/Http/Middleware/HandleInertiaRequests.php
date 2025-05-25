@@ -39,13 +39,17 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'permissions' => $user?->getAllPermissions()->pluck('name'),
             ],
+            'menus' => $user ? $this->getMenusForUser($user) : [],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
@@ -53,4 +57,22 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
+
+    public function getMenusForUser($user)
+    {
+        $roleIds = $user->roles()->pluck('id');
+
+        return \App\Models\Menu::whereHas('roles', function ($q) use ($roleIds) {
+            $q->whereIn('roles.id', $roleIds);
+        })
+        ->with(['children' => function ($query) use ($roleIds) {
+            $query->whereHas('roles', function ($q) use ($roleIds) {
+                $q->whereIn('roles.id', $roleIds);
+            });
+        }])
+        ->whereNull('parent_id')
+        ->orderBy('name')
+        ->get();
+    }
+
 }

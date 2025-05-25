@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('icon')->nullable(); 
-            $table->string('route');
+            $table->string('route')->nullable();
             $table->foreignId('parent_id')->nullable()->constrained('menus');
             $table->timestamps();
         });
