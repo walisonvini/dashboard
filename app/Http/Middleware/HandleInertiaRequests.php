@@ -62,31 +62,31 @@ class HandleInertiaRequests extends Middleware
 
     public function getMenusForUser($user)
     {
-        $rolePermissions = $user->roles()
-            ->with('permissions')
+        $roleViewPermissions = $user->roles()
+            ->with(['permissions' => function ($query) {
+                $query->where('name', 'like', '%.view');
+            }])
             ->get()
             ->pluck('permissions')
             ->flatten()
             ->pluck('id')
             ->unique();
 
-        $visibleMenus = \App\Models\Menu::whereNull('parent_id')
-            ->where(function ($query) use ($rolePermissions) {
-                $query->whereHas('permissions', function ($q) use ($rolePermissions) {
-                    $q->whereIn('permissions.id', $rolePermissions);
+        return \App\Models\Menu::whereNull('parent_id')
+            ->where(function ($query) use ($roleViewPermissions) {
+                $query->whereHas('permissions', function ($q) use ($roleViewPermissions) {
+                    $q->whereIn('permissions.id', $roleViewPermissions);
                 })
-                ->orWhereHas('children.permissions', function ($q) use ($rolePermissions) {
-                    $q->whereIn('permissions.id', $rolePermissions);
+                ->orWhereHas('children.permissions', function ($q) use ($roleViewPermissions) {
+                    $q->whereIn('permissions.id', $roleViewPermissions);
                 });
             })
-            ->with(['children' => function ($query) use ($rolePermissions) {
-                $query->whereHas('permissions', function ($q) use ($rolePermissions) {
-                    $q->whereIn('permissions.id', $rolePermissions);
+            ->with(['children' => function ($query) use ($roleViewPermissions) {
+                $query->whereHas('permissions', function ($q) use ($roleViewPermissions) {
+                    $q->whereIn('permissions.id', $roleViewPermissions);
                 });
             }])
             ->orderBy('name')
             ->get();
-
-        return $visibleMenus;
     }
 }
