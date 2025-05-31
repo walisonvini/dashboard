@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+
 class RolePermissionSeeder extends Seeder
 {
     /**
@@ -13,12 +14,20 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        $super = Role::where('name', 'super')->first();
-        $admin = Role::where('name', 'admin')->first();
-        $employee = Role::where('name', 'employee')->first();
+        $permissionGroups = [
+            'home' => ['home.view'],
+            'users' => ['users.view', 'users.create', 'users.edit', 'users.delete'],
+            'roles' => ['roles.view', 'roles.create', 'roles.edit', 'roles.delete'],
+            'permissions' => ['permissions.view', 'permissions.create', 'permissions.edit', 'permissions.delete'],
+        ];
 
+        $super = Role::where('name', 'super')->first();
         $super->givePermissionTo(Permission::all());
-        $admin->givePermissionTo(['view users', 'create users', 'edit users', 'delete users']);
-        $employee->givePermissionTo(['view users']);
+
+        $admin = Role::where('name', 'admin')->first();
+        $admin->givePermissionTo($permissionGroups['home'], $permissionGroups['users']);
+
+        $employee = Role::where('name', 'employee')->first();
+        $employee->givePermissionTo($permissionGroups['home']);
     }
 }

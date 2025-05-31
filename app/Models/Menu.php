@@ -8,9 +8,9 @@ class Menu extends Model
 {
     protected $fillable = ['name', 'icon', 'route', 'parent_id'];
 
-    public function roles()
+    public function permissions()
     {
-        return $this->belongsToMany(\Spatie\Permission\Models\Role::class, 'menu_role');
+        return $this->belongsToMany(\Spatie\Permission\Models\Permission::class, 'menu_permission');
     }
 
     public function children()

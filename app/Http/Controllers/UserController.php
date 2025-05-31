@@ -12,6 +12,7 @@ use Spatie\Permission\Models\Role;
 
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+
 class UserController extends Controller
 {
     public function index()

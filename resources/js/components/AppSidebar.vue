@@ -13,8 +13,6 @@ import { computed } from 'vue';
 const page = usePage()
 
 const convertMenuToNavItem = (menu: any): NavItem => {
-    console.log('Menu item:', menu);
-
     const navItem: NavItem = {
         title: menu.name,
         href: menu.children?.length ? '' : menu.route,
@@ -31,9 +29,10 @@ const convertMenuToNavItem = (menu: any): NavItem => {
     return navItem;
 };
 
+console.log(page.props.menus);
+
 const mainNavItems = computed<NavItem[]>(() => {
     const menus = page.props.menus || [];
-    console.log('All menus:', menus);
     return menus.map(convertMenuToNavItem);
 });
 

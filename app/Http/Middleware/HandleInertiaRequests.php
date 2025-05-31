@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
+use App\Models\Menu;
+
 class HandleInertiaRequests extends Middleware
 {
     /**
@@ -60,19 +62,31 @@ class HandleInertiaRequests extends Middleware
 
     public function getMenusForUser($user)
     {
-        $roleIds = $user->roles()->pluck('id');
+        $rolePermissions = $user->roles()
+            ->with('permissions')
+            ->get()
+            ->pluck('permissions')
+            ->flatten()
+            ->pluck('id')
+            ->unique();
 
-        return \App\Models\Menu::whereHas('roles', function ($q) use ($roleIds) {
-            $q->whereIn('roles.id', $roleIds);
-        })
-        ->with(['children' => function ($query) use ($roleIds) {
-            $query->whereHas('roles', function ($q) use ($roleIds) {
-                $q->whereIn('roles.id', $roleIds);
-            });
-        }])
-        ->whereNull('parent_id')
-        ->orderBy('name')
-        ->get();
+        $visibleMenus = \App\Models\Menu::whereNull('parent_id')
+            ->where(function ($query) use ($rolePermissions) {
+                $query->whereHas('permissions', function ($q) use ($rolePermissions) {
+                    $q->whereIn('permissions.id', $rolePermissions);
+                })
+                ->orWhereHas('children.permissions', function ($q) use ($rolePermissions) {
+                    $q->whereIn('permissions.id', $rolePermissions);
+                });
+            })
+            ->with(['children' => function ($query) use ($rolePermissions) {
+                $query->whereHas('permissions', function ($q) use ($rolePermissions) {
+                    $q->whereIn('permissions.id', $rolePermissions);
+                });
+            }])
+            ->orderBy('name')
+            ->get();
+
+        return $visibleMenus;
     }
-
 }

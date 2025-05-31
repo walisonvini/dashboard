@@ -2,7 +2,7 @@
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { ChevronRight } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -11,6 +11,17 @@ const props = defineProps<{
 
 const page = usePage<SharedData>();
 const openMenus = ref<Record<string, boolean>>({});
+
+const isActive = (href: string) => {
+    if (!href) return false;
+    
+    const cleanHref = href.startsWith('/') ? href.slice(1) : href;
+    const currentPath = window.location.pathname.slice(1);
+    
+    return currentPath === cleanHref || currentPath.startsWith(cleanHref + '/');
+};
+
+const normalizePath = (path: string) => path.startsWith('/') ? path : `/${path}`;
 
 const toggleSubmenu = (title: string) => {
     openMenus.value[title] = !openMenus.value[title];
@@ -24,7 +35,7 @@ const toggleSubmenu = (title: string) => {
             <SidebarMenuItem v-for="item in items" :key="item.title">
                 <template v-if="item.children">
                     <SidebarMenuButton 
-                        :is-active="item.href === page.url"
+                        :is-active="isActive(item.href)"
                         :tooltip="item.title"
                         @click="toggleSubmenu(item.title)"
                     >
@@ -40,9 +51,9 @@ const toggleSubmenu = (title: string) => {
                         </div>
                     </SidebarMenuButton>
                 </template>
-                <Link v-else :href="item.href" class="block">
+                <Link v-else :href="normalizePath(item.href)" class="block">
                     <SidebarMenuButton 
-                        :is-active="item.href === page.url"
+                        :is-active="isActive(item.href)"
                         :tooltip="item.title"
                     >
                         <div class="flex items-center gap-2">
@@ -56,9 +67,9 @@ const toggleSubmenu = (title: string) => {
                     <SidebarMenuSubItem v-for="child in item.children" :key="child.title">
                         <SidebarMenuSubButton 
                             as-child 
-                            :is-active="child.href === page.url"
+                            :is-active="isActive(child.href)"
                         >
-                            <Link :href="child.href">
+                            <Link :href="normalizePath(child.href)">
                                 <span>{{ child.title }}</span>
                             </Link>
                         </SidebarMenuSubButton>

@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('menu_role', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('menu_id')->constrained('menus');
-            $table->foreignId('role_id')->constrained('roles');
-            $table->timestamps();
+        Schema::create('menu_permission', function (Blueprint $table) {
+            $table->foreignId('menu_id')->constrained('menus')->onDelete('cascade');
+            $table->foreignId('permission_id')->constrained('permissions')->onDelete('cascade');
         });
     }
 
@@ -24,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('menu_role');
+        Schema::dropIfExists('menu_permission');
     }
 };

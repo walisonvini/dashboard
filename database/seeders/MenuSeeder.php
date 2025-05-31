@@ -41,9 +41,9 @@ class MenuSeeder extends Seeder
         ]);
 
         $users->children()->create([
-            'name' => 'Role Permissions',
+            'name' => 'Permissions',
             'icon' => null,
-            'route' => 'role-permissions',
+            'route' => 'permissions',
             'parent_id' => $users->id,
         ]);
     }   
