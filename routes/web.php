@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('welcome');
@@ -23,7 +24,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
     Route::get('permissions', [PermissionController::class, 'index'])->name('permissions.index');
-
+    Route::get('permissions/role/{role}', [PermissionController::class, 'getMenusWithPermissionsForRole'])->name('permissions.getMenusWithPermissionsForRole');
+    Route::post('permissions/{role}', [PermissionController::class, 'store'])->name('permissions.store');
 });
 
 require __DIR__.'/settings.php';

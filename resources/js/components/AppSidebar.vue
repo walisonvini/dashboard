@@ -29,8 +29,6 @@ const convertMenuToNavItem = (menu: any): NavItem => {
     return navItem;
 };
 
-console.log(page.props.menus);
-
 const mainNavItems = computed<NavItem[]>(() => {
     const menus = page.props.menus || [];
     return menus.map(convertMenuToNavItem);
