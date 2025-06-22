@@ -4,6 +4,10 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,6 +23,17 @@ interface Menu {
         id: number;
         name: string;
         description: string;
+        checked?: boolean;
+    }[];
+    children?: {
+        id: number;
+        name: string;
+        permissions: {
+            id: number;
+            name: string;
+            description: string;
+            checked?: boolean;
+        }[];
     }[];
 }
 
@@ -35,6 +50,7 @@ const props = defineProps<{
 const roleMenus = ref<Menu[]>(props.roleMenus);
 const selectedRole = ref('');
 const selectedPermissions = ref<string[]>([]);
+const expandedMenus = ref<Set<number>>(new Set());
 
 watch(selectedRole, async (roleId) => {
   if (!roleId) {
@@ -49,13 +65,27 @@ watch(selectedRole, async (roleId) => {
     menu.permissions.forEach(p => {
       if (p.checked) selectedPermissions.value.push(p.name);
     });
-    menu.children.forEach(child => {
-      child.permissions.forEach(p => {
-        if (p.checked) selectedPermissions.value.push(p.name);
+    if (menu.children) {
+      menu.children.forEach(child => {
+        child.permissions.forEach(p => {
+          if (p.checked) selectedPermissions.value.push(p.name);
+        });
       });
-    });
+    }
   });
 });
+
+function toggleMenu(menuId: number) {
+  if (expandedMenus.value.has(menuId)) {
+    expandedMenus.value.delete(menuId);
+  } else {
+    expandedMenus.value.add(menuId);
+  }
+}
+
+function isMenuExpanded(menuId: number): boolean {
+  return expandedMenus.value.has(menuId);
+}
 
 function savePermissions() {
   router.post(`/permissions/${selectedRole.value}`, {
@@ -72,6 +102,8 @@ function savePermissions() {
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold">Permissions</h1>
             </div>
+            
+            <!-- Role Selection -->
             <div class="flex items-center justify-center">
                 <select 
                     v-model="selectedRole"
@@ -83,19 +115,140 @@ function savePermissions() {
                     </option>
                 </select>
             </div>
-            <div v-for="menu in roleMenus" :key="menu.id">
-                <div>{{ menu.name }}</div>
-                <div v-for="perm in menu.permissions" :key="perm.name">
-                    <input type="checkbox" :value="perm.name" v-model="selectedPermissions" /> {{ perm.name }}
-                </div>
-                <div v-for="child in menu.children" :key="child.id">
-                    <div>{{ child.name }}</div>
-                    <div v-for="perm in child.permissions" :key="perm.name">
-                        <input type="checkbox" :value="perm.name" v-model="selectedPermissions" /> {{ perm.name }}
-                    </div>
+
+            <!-- Permissions List -->
+            <div v-if="selectedRole && roleMenus.length > 0" class="space-y-4">
+                <Card v-for="menu in roleMenus" :key="menu.id">
+                    <!-- Menu Header -->
+                    <CardHeader 
+                        @click="toggleMenu(menu.id)"
+                        class="cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <svg 
+                                    :class="[
+                                        'w-5 h-5 text-muted-foreground transition-transform duration-200',
+                                        isMenuExpanded(menu.id) ? 'rotate-90' : ''
+                                    ]"
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                <CardTitle class="text-lg">{{ menu.name }}</CardTitle>
+                            </div>
+                            <span class="text-sm text-muted-foreground">
+                                {{ menu.permissions.length + (menu.children?.reduce((acc, child) => acc + child.permissions.length, 0) || 0) }} permissions
+                            </span>
+                        </div>
+                    </CardHeader>
+
+                    <!-- Menu Content -->
+                    <CardContent v-show="isMenuExpanded(menu.id)" class="pt-0">
+                        <!-- Main Menu Permissions -->
+                        <div v-if="menu.permissions.length > 0" class="space-y-4">
+                            <div>
+                                <Label class="text-sm font-medium">Main Permissions</Label>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                                <div 
+                                    v-for="perm in menu.permissions" 
+                                    :key="perm.name"
+                                    class="flex items-center space-x-2"
+                                >
+                                    <Checkbox
+                                        :id="'perm-' + perm.name"
+                                        :model-value="selectedPermissions.includes(perm.name)"
+                                        @update:modelValue="(checked) => {
+                                            if (checked) {
+                                                selectedPermissions.push(perm.name);
+                                            } else {
+                                                const index = selectedPermissions.indexOf(perm.name);
+                                                if (index > -1) {
+                                                    selectedPermissions.splice(index, 1);
+                                                }
+                                            }
+                                        }"
+                                    />
+                                    <Label :for="'perm-' + perm.name" class="text-sm font-normal">
+                                        <div>{{ perm.name }}</div>
+                                        <div v-if="perm.description" class="text-xs text-muted-foreground">{{ perm.description }}</div>
+                                    </Label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Child Menus -->
+                        <div v-if="menu.children && menu.children.length > 0" class="space-y-6">
+                            <div v-for="child in menu.children" :key="child.id" class="border-t pt-6">
+                                <div class="space-y-4">
+                                    <Label class="text-sm font-medium">{{ child.name }}</Label>
+                                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                                        <div 
+                                            v-for="perm in child.permissions" 
+                                            :key="perm.name"
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <Checkbox
+                                                :id="'child-perm-' + perm.name"
+                                                :model-value="selectedPermissions.includes(perm.name)"
+                                                @update:modelValue="(checked) => {
+                                                    if (checked) {
+                                                        selectedPermissions.push(perm.name);
+                                                    } else {
+                                                        const index = selectedPermissions.indexOf(perm.name);
+                                                        if (index > -1) {
+                                                            selectedPermissions.splice(index, 1);
+                                                        }
+                                                    }
+                                                }"
+                                            />
+                                            <Label :for="'child-perm-' + perm.name" class="text-sm font-normal">
+                                                <div>{{ perm.name }}</div>
+                                                <div v-if="perm.description" class="text-xs text-muted-foreground">{{ perm.description }}</div>
+                                            </Label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <!-- Save Button -->
+                <div class="flex justify-center pt-6">
+                    <Button 
+                        @click="savePermissions"
+                        class="px-6 py-3"
+                    >
+                        Save Permissions
+                    </Button>
                 </div>
             </div>
-            <button @click="savePermissions">Salvar Permissões</button>
+
+            <!-- Empty State -->
+            <div v-else-if="selectedRole && roleMenus.length === 0" class="text-center py-12">
+                <div class="text-muted-foreground">
+                    <svg class="mx-auto h-12 w-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium">No permissions found</h3>
+                    <p class="mt-1 text-sm">This role doesn't have any permissions configured.</p>
+                </div>
+            </div>
+
+            <!-- Select Role Prompt -->
+            <div v-else class="text-center py-12">
+                <div class="text-muted-foreground">
+                    <svg class="mx-auto h-12 w-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium">Select a role</h3>
+                    <p class="mt-1 text-sm">Choose a role above to manage its permissions.</p>
+                </div>
+            </div>
         </div>
     </AppLayout>
 </template>
