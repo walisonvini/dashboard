@@ -6,6 +6,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
+use App\Helpers\MenuCacheHelper;
 
 use App\Models\Menu;
 
@@ -57,36 +58,46 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+                'warning' => $request->session()->get('warning'),
+                'info' => $request->session()->get('info'),
+            ],
         ];
     }
 
     public function getMenusForUser($user)
     {
-        $roleViewPermissions = $user->roles()
-            ->with(['permissions' => function ($query) {
-                $query->where('name', 'like', '%.view');
-            }])
-            ->get()
-            ->pluck('permissions')
-            ->flatten()
-            ->pluck('id')
-            ->unique();
+        $cacheKey = MenuCacheHelper::generateCacheKey($user);
+        
+        return cache()->remember($cacheKey, now()->addHours(24), function () use ($user) {
+            $roleViewPermissions = $user->roles()
+                ->with(['permissions' => function ($query) {
+                    $query->where('name', 'like', '%.view');
+                }])
+                ->get()
+                ->pluck('permissions')
+                ->flatten()
+                ->pluck('id')
+                ->unique();
 
-        return Menu::whereNull('parent_id')
-            ->where(function ($query) use ($roleViewPermissions) {
-                $query->whereHas('permissions', function ($q) use ($roleViewPermissions) {
-                    $q->whereIn('permissions.id', $roleViewPermissions);
+            return Menu::whereNull('parent_id')
+                ->where(function ($query) use ($roleViewPermissions) {
+                    $query->whereHas('permissions', function ($q) use ($roleViewPermissions) {
+                        $q->whereIn('permissions.id', $roleViewPermissions);
+                    })
+                    ->orWhereHas('children.permissions', function ($q) use ($roleViewPermissions) {
+                        $q->whereIn('permissions.id', $roleViewPermissions);
+                    });
                 })
-                ->orWhereHas('children.permissions', function ($q) use ($roleViewPermissions) {
-                    $q->whereIn('permissions.id', $roleViewPermissions);
-                });
-            })
-            ->with(['children' => function ($query) use ($roleViewPermissions) {
-                $query->whereHas('permissions', function ($q) use ($roleViewPermissions) {
-                    $q->whereIn('permissions.id', $roleViewPermissions);
-                });
-            }])
-            ->orderBy('name')
-            ->get();
+                ->with(['children' => function ($query) use ($roleViewPermissions) {
+                    $query->whereHas('permissions', function ($q) use ($roleViewPermissions) {
+                        $q->whereIn('permissions.id', $roleViewPermissions);
+                    });
+                }])
+                ->orderBy('name')
+                ->get();
+        });
     }
 }

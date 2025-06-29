@@ -66,11 +66,11 @@ watch(selectedRole, async (roleId) => {
       if (p.checked) selectedPermissions.value.push(p.name);
     });
     if (menu.children) {
-      menu.children.forEach(child => {
-        child.permissions.forEach(p => {
-          if (p.checked) selectedPermissions.value.push(p.name);
-        });
+    menu.children.forEach(child => {
+      child.permissions.forEach(p => {
+        if (p.checked) selectedPermissions.value.push(p.name);
       });
+    });
     }
   });
 });
@@ -237,7 +237,7 @@ function savePermissions() {
                     <h3 class="mt-2 text-sm font-medium">No permissions found</h3>
                     <p class="mt-1 text-sm">This role doesn't have any permissions configured.</p>
                 </div>
-            </div>
+                    </div>
 
             <!-- Select Role Prompt -->
             <div v-else class="text-center py-12">

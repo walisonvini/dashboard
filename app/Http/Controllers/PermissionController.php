@@ -32,6 +32,10 @@ class PermissionController extends Controller
     {
         $permissions = Permission::whereIn('name', $request->input('permissions'))->pluck('id');
         $role->permissions()->sync($permissions);
+
+        app()['cache']->forget('spatie.permission.cache');
+
+        return to_route('permissions.index')->with('success', 'Permissions updated successfully');
     }
 
     public function getMenusWithPermissionsForRole($roleId)

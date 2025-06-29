@@ -23,19 +23,19 @@ class RoleController extends Controller
 
     public function store(StoreRoleRequest $request)
     {
-        $role = Role::create($request->all());
-        return redirect()->route('roles.index')->with('success', 'Role created successfully');
+        Role::create($request->all());
+        return to_route('roles.index')->with('success', 'Role created successfully');
     }
 
     public function update(UpdateRoleRequest $request, Role $role)
     {
         $role->update($request->all());
-        return redirect()->route('roles.index')->with('success', 'Role updated successfully');
+        return to_route('roles.index')->with('success', 'Role updated successfully');
     }
 
     public function destroy(Role $role)
     {
         $role->delete();
-        return redirect()->route('roles.index')->with('success', 'Role deleted successfully');
+        return to_route('roles.index')->with('success', 'Role deleted successfully');
     }
 }

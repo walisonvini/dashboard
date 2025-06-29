@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 use Inertia\Inertia;
@@ -40,6 +39,8 @@ class UserController extends Controller
         ]);
 
         $user->assignRole($request->roles);
+
+        app()['cache']->forget('spatie.permission.cache');
 
         return to_route('users.index')->with('success', 'User created successfully.');
     }
