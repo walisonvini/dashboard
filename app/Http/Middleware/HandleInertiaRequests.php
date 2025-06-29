@@ -72,7 +72,7 @@ class HandleInertiaRequests extends Middleware
             ->pluck('id')
             ->unique();
 
-        return \App\Models\Menu::whereNull('parent_id')
+        return Menu::whereNull('parent_id')
             ->where(function ($query) use ($roleViewPermissions) {
                 $query->whereHas('permissions', function ($q) use ($roleViewPermissions) {
                     $q->whereIn('permissions.id', $roleViewPermissions);
