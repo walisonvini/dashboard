@@ -83,8 +83,17 @@ class UserController extends Controller
         return to_route('users.index')->with('success', 'User deleted successfully.');
     }
 
-    public function restore(User $user)
+    public function trashed()
     {
+        $users = User::onlyTrashed()->get();
+        return Inertia::render('users/Trashed', [
+            'users' => $users
+        ]);
+    }
+
+    public function restore($userId)
+    {
+        $user = User::onlyTrashed()->findOrFail($userId);
         $user->restore();
 
         return to_route('users.index')->with('success', 'User restored successfully.');
