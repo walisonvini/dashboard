@@ -29,5 +29,8 @@ class RolePermissionSeeder extends Seeder
 
         $employee = Role::where('name', 'employee')->first();
         $employee->givePermissionTo($permissionGroups['home']);
+
+        $default = Role::where('name', 'default')->first();
+        $default->givePermissionTo($permissionGroups['home']);
     }
 }

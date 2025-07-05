@@ -12,8 +12,17 @@ use Spatie\Permission\Models\Role;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 
+use App\Services\UserService;
+
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function index()
     {
         $users = User::all();
@@ -47,6 +56,10 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        if (!$this->userService->veryIfUserIsModifiable($user)) {
+            return to_route('users.index')->with('error', 'User cannot be modified');
+        }
+
         $roles = Role::all();
         return Inertia::render('users/Edit', [
             'user' => [
@@ -61,6 +74,10 @@ class UserController extends Controller
 
     public function update(UpdateUserRequest $request, User $user)
     {
+        if (!$this->userService->veryIfUserIsModifiable($user)) {
+            return to_route('users.index')->with('error', 'User cannot be modified');
+        }
+
         $userData = [
             'name' => $request->name,
             'email' => $request->email,
@@ -78,6 +95,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if (!$this->userService->veryIfUserIsModifiable($user)) {
+            return to_route('users.index')->with('error', 'User cannot be deleted');
+        }
+
         $user->delete();
 
         return to_route('users.index')->with('success', 'User deleted successfully.');

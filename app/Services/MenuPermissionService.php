@@ -47,7 +47,7 @@ class MenuPermissionService
             });
     }
 
-    public function getMenusWithPermissions()
+    public function getMenusWithPermissions(): Collection
     {
         return Menu::whereNull('parent_id')
             ->with([
