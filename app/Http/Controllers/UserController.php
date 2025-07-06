@@ -54,7 +54,7 @@ class UserController extends Controller
 
         app()['cache']->forget('spatie.permission.cache');
 
-        return to_route('users.index')->with('success', 'User created successfully.');
+        return to_route('users.index')->with('success', 'User created successfully');
     }
 
     public function edit(User $user): Response|RedirectResponse
@@ -93,7 +93,7 @@ class UserController extends Controller
         $user->update($userData);
         $user->syncRoles($request->roles);
 
-        return to_route('users.index')->with('success', 'User updated successfully.');
+        return to_route('users.index')->with('success', 'User updated successfully');
     }
 
     public function destroy(User $user): RedirectResponse
@@ -104,7 +104,7 @@ class UserController extends Controller
 
         $user->delete();
 
-        return to_route('users.index')->with('success', 'User deleted successfully.');
+        return to_route('users.index')->with('success', 'User deleted successfully');
     }
 
     public function trashed(): Response
@@ -120,6 +120,6 @@ class UserController extends Controller
         $user = User::onlyTrashed()->findOrFail($userId);
         $user->restore();
 
-        return to_route('users.index')->with('success', 'User restored successfully.');
+        return to_route('users.index')->with('success', 'User restored successfully');
     }
 }
