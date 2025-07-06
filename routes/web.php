@@ -7,7 +7,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 })->name('welcome');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('home', function () {
         return Inertia::render('Home');
     })->name('home');

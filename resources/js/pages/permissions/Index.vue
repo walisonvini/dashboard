@@ -92,6 +92,86 @@ function savePermissions() {
     permissions: selectedPermissions.value
   });
 }
+
+function selectAllMenuPermissions(menu: Menu) {
+  const allPermissions: string[] = [];
+  
+  // Add main menu permissions
+  menu.permissions.forEach(p => allPermissions.push(p.name));
+  
+  // Add child menu permissions
+  if (menu.children) {
+    menu.children.forEach(child => {
+      child.permissions.forEach(p => allPermissions.push(p.name));
+    });
+  }
+  
+  // Add all permissions that aren't already selected
+  allPermissions.forEach(perm => {
+    if (!selectedPermissions.value.includes(perm)) {
+      selectedPermissions.value.push(perm);
+    }
+  });
+}
+
+function deselectAllMenuPermissions(menu: Menu) {
+  const allPermissions: string[] = [];
+  
+  // Add main menu permissions
+  menu.permissions.forEach(p => allPermissions.push(p.name));
+  
+  // Add child menu permissions
+  if (menu.children) {
+    menu.children.forEach(child => {
+      child.permissions.forEach(p => allPermissions.push(p.name));
+    });
+  }
+  
+  // Remove all permissions from this menu
+  allPermissions.forEach(perm => {
+    const index = selectedPermissions.value.indexOf(perm);
+    if (index > -1) {
+      selectedPermissions.value.splice(index, 1);
+    }
+  });
+}
+
+function selectAllChildPermissions(child: any) {
+  child.permissions.forEach((p: any) => {
+    if (!selectedPermissions.value.includes(p.name)) {
+      selectedPermissions.value.push(p.name);
+    }
+  });
+}
+
+function deselectAllChildPermissions(child: any) {
+  child.permissions.forEach((p: any) => {
+    const index = selectedPermissions.value.indexOf(p.name);
+    if (index > -1) {
+      selectedPermissions.value.splice(index, 1);
+    }
+  });
+}
+
+function isMenuAllSelected(menu: Menu): boolean {
+  const allPermissions: string[] = [];
+  
+  // Add main menu permissions
+  menu.permissions.forEach(p => allPermissions.push(p.name));
+  
+  // Add child menu permissions
+  if (menu.children) {
+    menu.children.forEach(child => {
+      child.permissions.forEach(p => allPermissions.push(p.name));
+    });
+  }
+  
+  return allPermissions.length > 0 && allPermissions.every(perm => selectedPermissions.value.includes(perm));
+}
+
+function isChildAllSelected(child: any): boolean {
+  return child.permissions.length > 0 && child.permissions.every((p: any) => selectedPermissions.value.includes(p.name));
+}
 </script>
 
 <template>
@@ -147,6 +227,26 @@ function savePermissions() {
 
                     <!-- Menu Content -->
                     <CardContent v-show="isMenuExpanded(menu.id)" class="pt-0">
+                        <!-- Select All for Menu -->
+                        <div v-if="menu.permissions.length > 0 || (menu.children && menu.children.length > 0)" class="mb-4 pb-4 border-b">
+                            <div class="flex items-center space-x-2">
+                                <Checkbox
+                                    :id="'select-all-menu-' + menu.id"
+                                    :model-value="isMenuAllSelected(menu)"
+                                    @update:modelValue="(checked) => {
+                                        if (checked) {
+                                            selectAllMenuPermissions(menu);
+                                        } else {
+                                            deselectAllMenuPermissions(menu);
+                                        }
+                                    }"
+                                />
+                                <Label :for="'select-all-menu-' + menu.id" class="text-sm font-medium">
+                                    Select all permissions for {{ menu.name }}
+                                </Label>
+                            </div>
+                        </div>
+
                         <!-- Main Menu Permissions -->
                         <div v-if="menu.permissions.length > 0" class="space-y-4">
                             <div>
@@ -184,7 +284,24 @@ function savePermissions() {
                         <div v-if="menu.children && menu.children.length > 0" class="space-y-6">
                             <div v-for="child in menu.children" :key="child.id" class="border-t pt-6">
                                 <div class="space-y-4">
-                                    <Label class="text-sm font-medium">{{ child.name }}</Label>
+                                    <!-- Select All for Child -->
+                                    <div class="flex items-center space-x-2">
+                                        <Checkbox
+                                            :id="'select-all-child-' + child.id"
+                                            :model-value="isChildAllSelected(child)"
+                                            @update:modelValue="(checked) => {
+                                                if (checked) {
+                                                    selectAllChildPermissions(child);
+                                                } else {
+                                                    deselectAllChildPermissions(child);
+                                                }
+                                            }"
+                                        />
+                                        <Label :for="'select-all-child-' + child.id" class="text-sm font-medium">
+                                            Select all {{ child.name }} permissions
+                                        </Label>
+                                    </div>
+                                    
                                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                                         <div 
                                             v-for="perm in child.permissions" 

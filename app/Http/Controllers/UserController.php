@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Hash;
 
 use Inertia\Inertia;
+use Inertia\Response;
+
+use Illuminate\Http\RedirectResponse;
 
 use App\Models\User;
 use Spatie\Permission\Models\Role;
@@ -23,7 +26,7 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index()
+    public function index(): Response
     {
         $users = User::all();
         return Inertia::render('users/Index', [
@@ -31,7 +34,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(): Response
     {
         $roles = Role::all();
         return Inertia::render('users/Create', [
@@ -39,7 +42,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request): RedirectResponse
     {
         $user = User::create([
             'name' => $request->name,
@@ -54,7 +57,7 @@ class UserController extends Controller
         return to_route('users.index')->with('success', 'User created successfully.');
     }
 
-    public function edit(User $user)
+    public function edit(User $user): Response|RedirectResponse
     {
         if (!$this->userService->veryIfUserIsModifiable($user)) {
             return to_route('users.index')->with('error', 'User cannot be modified');
@@ -72,7 +75,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         if (!$this->userService->veryIfUserIsModifiable($user)) {
             return to_route('users.index')->with('error', 'User cannot be modified');
@@ -93,7 +96,7 @@ class UserController extends Controller
         return to_route('users.index')->with('success', 'User updated successfully.');
     }
 
-    public function destroy(User $user)
+    public function destroy(User $user): RedirectResponse
     {
         if (!$this->userService->veryIfUserIsModifiable($user)) {
             return to_route('users.index')->with('error', 'User cannot be deleted');
@@ -104,7 +107,7 @@ class UserController extends Controller
         return to_route('users.index')->with('success', 'User deleted successfully.');
     }
 
-    public function trashed()
+    public function trashed(): Response
     {
         $users = User::onlyTrashed()->get();
         return Inertia::render('users/Trashed', [
@@ -112,7 +115,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function restore($userId)
+    public function restore($userId): RedirectResponse
     {
         $user = User::onlyTrashed()->findOrFail($userId);
         $user->restore();

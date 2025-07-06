@@ -3,7 +3,7 @@
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('roles', [RoleController::class, 'index'])->name('roles.index')->middleware('permission:roles.view');
     Route::get('roles/create', [RoleController::class, 'create'])->name('roles.create')->middleware('permission:roles.create');
     Route::post('roles', [RoleController::class, 'store'])->name('roles.store')->middleware('permission:roles.create');
