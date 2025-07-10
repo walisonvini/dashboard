@@ -9,8 +9,8 @@ use Illuminate\Http\RedirectResponse;
 
 use Spatie\Permission\Models\Role;
 
-use App\Http\Requests\Role\StoreRoleRequest;
-use App\Http\Requests\Role\UpdateRoleRequest;
+use App\Http\Requests\Roles\StoreRoleRequest;
+use App\Http\Requests\Roles\UpdateRoleRequest;
 
 use App\Services\RoleService;
 

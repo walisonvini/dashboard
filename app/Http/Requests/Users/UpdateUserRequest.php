@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\Users;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Unique;
+use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -22,11 +24,11 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $this->user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'roles' => 'required|array|min:1',
-            'roles.*' => 'required|string',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', (new Unique('users', 'email'))->ignore($this->user->id)],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'roles' => ['required', 'array', 'min:1'],
+            'roles.*' => ['required', 'string'],
         ];
     }
 }

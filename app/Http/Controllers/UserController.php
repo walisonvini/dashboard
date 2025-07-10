@@ -12,8 +12,8 @@ use Illuminate\Http\RedirectResponse;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 
-use App\Http\Requests\User\StoreUserRequest;
-use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\Users\StoreUserRequest;
+use App\Http\Requests\Users\UpdateUserRequest;
 
 use App\Services\UserService;
 

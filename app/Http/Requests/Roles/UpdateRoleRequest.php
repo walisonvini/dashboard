@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Requests\Role;
+namespace App\Http\Requests\Roles;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Unique;
 
 class UpdateRoleRequest extends FormRequest
 {
@@ -22,7 +23,7 @@ class UpdateRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:roles,name,' . $this->role->id,
+            'name' => ['required', 'string', 'max:255', (new Unique('roles', 'name'))->ignore($this->role->id)],
         ];
     }
 }
