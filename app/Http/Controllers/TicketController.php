@@ -67,7 +67,7 @@ class TicketController extends Controller
                 ]),
                 'comments' => $ticket->comments->map(fn($comment) => [
                     'id' => $comment->id,
-                    'body' => $comment->comment, // ou 'body' se for esse o campo
+                    'body' => $comment->comment,
                     'created_at' => $comment->created_at,
                     'user' => [
                         'id' => $comment->user->id,
@@ -95,18 +95,5 @@ class TicketController extends Controller
     {
         $ticket->update($request->all());
         return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully');
-    }
-    
-    public function myTickets() 
-    {
-        $tickets = auth()->user()
-        ->tickets()
-        ->with('category')
-        ->latest()
-        ->get();
-
-        return Inertia::render('tickets/MyTickets', [
-            'tickets' => $tickets,
-        ]);
     }
 }
