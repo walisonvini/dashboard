@@ -4,7 +4,10 @@ namespace App\Services;
 
 use App\Models\Ticket;
 use App\Models\TicketComment;
+
 use Illuminate\Support\Facades\DB;
+
+use Illuminate\Database\Eloquent\Collection;
 
 class TicketService
 {
@@ -18,7 +21,6 @@ class TicketService
                 'priority' => $data['priority'] ?? 'medium',
                 'status' => 'open',
             ]);
-
 
             $ticket->users()->attach($user->id, ['role' => 'requester']);
 
@@ -44,5 +46,37 @@ class TicketService
 
             return $ticket;
         });
+    }
+
+    public function getTicketsForUser($user): Collection
+    {
+        if ($user->hasPermissionTo('tickets.support')) {
+            return $this->getAllTickets();
+        }
+
+        return $this->getUserTickets($user);
+    }
+
+    public function getAllTickets(): Collection
+    {
+        return Ticket::with(['category', 'users'])
+                    ->latest()
+                    ->get();
+    }
+
+    public function getUserTickets($user): Collection
+    {
+        return Ticket::with(['category', 'users'])
+                    ->whereHas('users', function($query) use ($user) {
+                        $query->where('user_id', $user->id);
+                    })
+                    ->latest()
+                    ->get();
+    }
+
+    public function getTicketWithDetails($ticketId)
+    {
+        return Ticket::with(['category', 'attachments', 'comments.user', 'comments.attachments'])
+                    ->findOrFail($ticketId);
     }
 }

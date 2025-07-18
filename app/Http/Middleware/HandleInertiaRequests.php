@@ -96,6 +96,7 @@ class HandleInertiaRequests extends Middleware
                         $q->whereIn('permissions.id', $roleViewPermissions);
                     });
                 }])
+                ->orderByRaw("CASE WHEN name = 'Home' THEN 0 ELSE 1 END")
                 ->orderBy('name')
                 ->get();
         });

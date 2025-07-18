@@ -19,16 +19,22 @@ class RolePermissionSeeder extends Seeder
             'users' => ['users.view', 'users.create', 'users.edit', 'users.delete'],
             'roles' => ['roles.view', 'roles.create', 'roles.edit', 'roles.delete'],
             'permissions' => ['permissions.view', 'permissions.create', 'permissions.edit', 'permissions.delete'],
+            'tickets' => ['tickets.view', 'tickets.create', 'tickets.edit', 'tickets.delete', 'tickets.support'],
+            'ticket-categories' => ['ticket-categories.view', 'ticket-categories.create', 'ticket-categories.edit', 'ticket-categories.delete'],
         ];
 
         $super = Role::where('name', 'super')->first();
         $super->givePermissionTo(Permission::all());
 
         $admin = Role::where('name', 'admin')->first();
-        $admin->givePermissionTo($permissionGroups['home'], $permissionGroups['users']);
+        $admin->givePermissionTo($permissionGroups['home'], $permissionGroups['users'], $permissionGroups['tickets']);
 
         $employee = Role::where('name', 'employee')->first();
-        $employee->givePermissionTo($permissionGroups['home']);
+        $employeeTickets = ['tickets.view', 'tickets.create', 'tickets.edit', 'tickets.delete'];
+        $employee->givePermissionTo($permissionGroups['home'], $employeeTickets);
+
+        $support = Role::where('name', 'support')->first();
+        $support->givePermissionTo($permissionGroups['home'], $permissionGroups['tickets']);
 
         $default = Role::where('name', 'default')->first();
         $default->givePermissionTo($permissionGroups['home']);

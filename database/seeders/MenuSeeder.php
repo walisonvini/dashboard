@@ -46,5 +46,26 @@ class MenuSeeder extends Seeder
             'route' => 'permissions',
             'parent_id' => $users->id,
         ]);
+
+        $serviceDesk = Menu::create([
+            'name' => 'Service Desk',
+            'icon' => 'LifeBuoy',
+            'route' => null,
+            'parent_id' => null,
+        ]);
+
+        $serviceDesk->children()->create([
+            'name' => 'Tickets',
+            'icon' => null,
+            'route' => 'tickets',
+            'parent_id' => $serviceDesk->id,
+        ]);
+
+        $serviceDesk->children()->create([
+            'name' => 'Categories',
+            'icon' => null,
+            'route' => 'ticket-categories',
+            'parent_id' => $serviceDesk->id,
+        ]);
     }   
 }

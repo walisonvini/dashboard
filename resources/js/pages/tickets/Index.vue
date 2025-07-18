@@ -4,7 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash2 } from 'lucide-vue-next';
+import { Pencil, Trash2, Eye } from 'lucide-vue-next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -24,7 +24,7 @@ interface Ticket {
         id: number;
         name: string;
     };
-    created_at: string;
+    updated_at: string;
 }
 
 const props = defineProps<{
@@ -45,42 +45,38 @@ const props = defineProps<{
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Title</TableHead>
-                            <TableHead>Category</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Priority</TableHead>
-                            <TableHead>Created At</TableHead>
-                            <TableHead class="w-[100px]">Actions</TableHead>
+                            <TableHead class="w-1/3">Title</TableHead>
+                            <TableHead class="w-1/6">Category</TableHead>
+                            <TableHead class="w-1/6 text-center">Status</TableHead>
+                            <TableHead class="w-1/6 text-center">Priority</TableHead>
+                            <TableHead class="w-1/6">Last Updated</TableHead>
+                            <TableHead class="w-20">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         <TableRow v-for="ticket in tickets" :key="ticket.id">
-                            <TableCell>{{ ticket.title }}</TableCell>
+                            <TableCell class="max-w-xs">
+                                <div class="truncate" :title="ticket.title">{{ ticket.title }}</div>
+                            </TableCell>
                             <TableCell>{{ ticket.category.name }}</TableCell>
-                            <TableCell>
+                            <TableCell class="text-center">
                                 <Badge :variant="ticket.status === 'open' ? 'open' : ticket.status === 'in_progress' ? 'in_progress' : 'closed'">
                                     {{ ticket.status }}
                                 </Badge>
                             </TableCell>
-                            <TableCell>
+                            <TableCell class="text-center">
                                 <Badge :variant="ticket.priority">
                                     {{ ticket.priority }}
                                 </Badge>
                             </TableCell>
-                            <TableCell>{{ new Date(ticket.created_at).toLocaleDateString() }}</TableCell>
+                            <TableCell>{{ new Date(ticket.updated_at).toLocaleString('pt-BR') }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
                                     <Link :href="route('tickets.edit', ticket.id)">
                                         <Button variant="ghost" size="icon">
-                                            <Pencil class="h-4 w-4" />
+                                            <Eye class="h-4 w-4" />
                                         </Button>
                                     </Link>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon"
-                                    >
-                                        <Trash2 class="h-4 w-4" />
-                                    </Button>
                                 </div>
                             </TableCell>
                         </TableRow>

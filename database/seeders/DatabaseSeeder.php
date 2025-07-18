@@ -12,6 +12,7 @@ use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserRoleSeeder;
 use Database\Seeders\MenuSeeder;
 use Database\Seeders\MenuPermissionSeeder;
+use Database\Seeders\TicketSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,7 +28,8 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             UserRoleSeeder::class,
             MenuSeeder::class,
-            MenuPermissionSeeder::class
+            MenuPermissionSeeder::class,
+            TicketSeeder::class
         ]);
     }
 }

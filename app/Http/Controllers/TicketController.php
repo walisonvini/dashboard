@@ -23,7 +23,8 @@ class TicketController extends Controller
 
     public function index()
     {
-        $tickets = Ticket::with('category')->latest()->get();
+        $tickets = $this->ticketService->getTicketsForUser(auth()->user());
+
         return Inertia::render('tickets/Index', [
             'tickets' => $tickets,
         ]);
@@ -44,49 +45,11 @@ class TicketController extends Controller
         return redirect()->route('tickets.index')->with('success', 'Ticket created successfully');
     }
 
-    public function show(Ticket $ticket)
-    {
-        $ticket->load('category', 'attachments', 'comments.user', 'comments.attachments');
-
-        return Inertia::render('tickets/Show', [
-            'ticket' => [
-                'id' => $ticket->id,
-                'title' => $ticket->title,
-                'description' => $ticket->description,
-                'status' => $ticket->status,
-                'priority' => $ticket->priority,
-                'category' => [
-                    'id' => $ticket->category->id,
-                    'name' => $ticket->category->name,
-                ],
-                'created_at' => $ticket->created_at,
-                'initial_comment' => $ticket->initial_comment,
-                'attachments' => $ticket->attachments->map(fn($file) => [
-                    'name' => $file->name,
-                    'url' => $file->url,
-                ]),
-                'comments' => $ticket->comments->map(fn($comment) => [
-                    'id' => $comment->id,
-                    'body' => $comment->comment,
-                    'created_at' => $comment->created_at,
-                    'user' => [
-                        'id' => $comment->user->id,
-                        'name' => $comment->user->name,
-                    ],
-                    'attachments' => $comment->attachments?->map(fn($file) => [
-                        'name' => $file->name,
-                        'url' => $file->url,
-                    ]) ?? [],
-                ]),
-            ],
-        ]);
-    }
-
     public function edit(Ticket $ticket)
     {
         $categories = TicketCategory::all();
         return Inertia::render('tickets/Edit', [
-            'ticket' => $ticket,
+            'ticket' => $ticket->load('category'),
             'categories' => $categories,
         ]);
     }

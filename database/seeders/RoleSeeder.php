@@ -18,6 +18,7 @@ class RoleSeeder extends Seeder
             'super',
             'admin',
             'employee',
+            'support',
             'default'
         ];
 

@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-use App\Models\User;
 use App\Models\TicketCategory;
 
 /**
@@ -24,8 +23,9 @@ class TicketFactory extends Factory
             'description' => $this->faker->paragraph,
             'status' => $this->faker->randomElement(['open', 'in_progress', 'closed']),
             'priority' => $this->faker->randomElement(['low', 'medium', 'high']),
-            'user_id' => User::factory(),
             'category_id' => TicketCategory::factory(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }
