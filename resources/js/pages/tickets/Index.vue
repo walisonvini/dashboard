@@ -4,7 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash2, Eye } from 'lucide-vue-next';
+import { Eye } from 'lucide-vue-next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -39,12 +39,17 @@ const props = defineProps<{
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold">Tickets</h1>
+
+                <Link :href="route('tickets.create')">
+                    <Button>New Ticket</Button>
+                </Link>
             </div>
 
             <div class="rounded-md border">
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead class="w-1/12">Incident ID</TableHead>
                             <TableHead class="w-1/3">Title</TableHead>
                             <TableHead class="w-1/6">Category</TableHead>
                             <TableHead class="w-1/6 text-center">Status</TableHead>
@@ -55,6 +60,7 @@ const props = defineProps<{
                     </TableHeader>
                     <TableBody>
                         <TableRow v-for="ticket in tickets" :key="ticket.id">
+                            <TableCell>#{{ ticket.id }}</TableCell>
                             <TableCell class="max-w-xs">
                                 <div class="truncate" :title="ticket.title">{{ ticket.title }}</div>
                             </TableCell>
@@ -65,7 +71,7 @@ const props = defineProps<{
                                 </Badge>
                             </TableCell>
                             <TableCell class="text-center">
-                                <Badge :variant="ticket.priority">
+                                <Badge :variant="ticket.priority === 'low' ? 'low' : ticket.priority === 'medium' ? 'medium' : 'high'">
                                     {{ ticket.priority }}
                                 </Badge>
                             </TableCell>

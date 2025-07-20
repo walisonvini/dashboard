@@ -5,15 +5,6 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-use Database\Seeders\UserSeeder;
-use Database\Seeders\RolePermissionSeeder;
-use Database\Seeders\RoleSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\UserRoleSeeder;
-use Database\Seeders\MenuSeeder;
-use Database\Seeders\MenuPermissionSeeder;
-use Database\Seeders\TicketSeeder;
-
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -29,7 +20,9 @@ class DatabaseSeeder extends Seeder
             UserRoleSeeder::class,
             MenuSeeder::class,
             MenuPermissionSeeder::class,
-            TicketSeeder::class
+            TicketCategorySeeder::class,
+            TicketSeeder::class,
+            TicketCommentSeeder::class,
         ]);
     }
 }

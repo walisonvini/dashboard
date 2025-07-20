@@ -1,0 +1,144 @@
+<script setup lang="ts">
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Send,  User, Clock } from 'lucide-vue-next';
+import { ref, nextTick, onMounted } from 'vue';
+import { Ticket, TicketComment } from '@/types/ticket';
+import axios from 'axios';
+import { useToast } from '@/composables/useToast';
+
+interface Props {
+    ticket: Ticket;
+    comments: TicketComment[];
+}
+
+const props = defineProps<Props>();
+const newMessage = ref('');
+const localComments = ref<TicketComment[]>([...props.comments]);
+const messagesContainer = ref<HTMLElement>();
+const { error: showError } = useToast();
+
+const currentUser = {
+    id: 1,
+    name: 'Current User',
+    email: 'user@example.com'
+};
+
+const scrollToBottom = () => {
+    nextTick(() => {
+        if (messagesContainer.value) {
+            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+        }
+    });
+};
+
+const sendMessage = async () => {
+    if (newMessage.value.trim()) {
+        try {
+            const { data } = await axios.post(route('tickets.comments.store', { ticket: props.ticket.id }), {
+                comment: newMessage.value.trim()
+            });
+            
+            if (data.status === 'success' && data.comment) {
+                localComments.value.push(data.comment);
+                newMessage.value = '';
+                scrollToBottom();
+            }
+        } catch (error) {
+            showError('Error', 'Could not send comment. Please try again.');
+        }
+    }
+};
+
+const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+};
+
+onMounted(() => {
+    scrollToBottom();
+});
+</script>
+
+<template>
+    <Card class="h-full flex flex-col">
+        <CardHeader class="border-b">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                    <CardTitle class="text-base md:text-lg">Ticket #{{ ticket.id }}</CardTitle>
+                    <p class="text-xs md:text-sm text-muted-foreground mt-1">{{ ticket.title }}</p>
+                </div>
+                <div class="flex items-center gap-1 md:gap-2">
+                    <Badge 
+                        :variant="ticket.status === 'open' ? 'open' : ticket.status === 'in_progress' ? 'in_progress' : 'closed'"
+                        class="text-xs"
+                    >
+                        {{ ticket.status }}
+                    </Badge>
+                    <Badge 
+                        :variant="ticket.priority === 'low' ? 'low' : ticket.priority === 'medium' ? 'medium' : 'high'"
+                        class="text-xs"
+                    >
+                        {{ ticket.priority }}
+                    </Badge>
+                </div>
+            </div>
+        </CardHeader>
+        
+        <CardContent class="flex-1 flex flex-col p-0 min-h-0">
+            <!-- Messages Area -->
+            <div 
+                ref="messagesContainer"
+                class="flex-1 p-2 md:p-4 space-y-4 overflow-y-auto min-h-0" 
+                style="max-height: 60vh;"
+            >
+                <div
+                    v-for="comment in localComments"
+                    :key="comment.id"
+                    class="flex gap-3"
+                    :class="{ 'flex-row-reverse': comment.user_id === currentUser.id }"
+                >
+                    <div class="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                        <User class="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <div class="flex-1" :class="{ 'text-right': comment.user_id === currentUser.id }">
+                        <div class="flex items-center gap-2 mb-1" :class="{ 'justify-end': comment.user_id === currentUser.id }">
+                            <span class="text-sm font-medium">{{ comment.user?.name || `User ${comment.user_id}` }}</span>
+                            <div class="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Clock class="w-3 h-3" />
+                                {{ new Date(comment.created_at).toLocaleString('en-US') }}
+                            </div>
+                        </div>
+                        <div 
+                            class="rounded-lg p-3 inline-block"
+                            :class="comment.user_id === currentUser.id 
+                                ? 'bg-primary text-primary-foreground ml-auto' 
+                                : 'bg-muted'"
+                        >
+                            <p class="text-sm">{{ comment.comment }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="border-t p-2 md:p-4">
+                <div class="flex gap-2">
+                    <textarea
+                        v-model="newMessage"
+                        placeholder="Type your message..."
+                        class="flex-1 min-h-[80px] max-h-32 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        rows="1"
+                        @keydown="handleKeyPress"
+                    />
+                    <Button @click="sendMessage" :disabled="!newMessage.trim()">
+                        <Send class="w-4 h-4" />
+                    </Button>
+                </div>
+            </div>
+        </CardContent>
+    </Card>
+</template> 

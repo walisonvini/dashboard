@@ -57,17 +57,17 @@ watch(selectedRole, async (roleId) => {
     selectedPermissions.value = [];
     return;
   }
-  const { data } = await axios.get(`/permissions/role/${roleId}`);
+  const { data } = await axios.get(route('permissions.role', { role: roleId }));
   roleMenus.value = data;
 
   selectedPermissions.value = [];
-  data.forEach(menu => {
-    menu.permissions.forEach(p => {
+  data.forEach((menu: Menu) => {
+    menu.permissions.forEach((p: { name: string; checked?: boolean }) => {
       if (p.checked) selectedPermissions.value.push(p.name);
     });
     if (menu.children) {
-    menu.children.forEach(child => {
-      child.permissions.forEach(p => {
+    menu.children.forEach((child: { permissions: { name: string; checked?: boolean }[] }) => {
+      child.permissions.forEach((p: { name: string; checked?: boolean }) => {
         if (p.checked) selectedPermissions.value.push(p.name);
       });
     });

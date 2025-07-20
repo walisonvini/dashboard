@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -171,7 +171,7 @@ const submit = () => {
                             <Button type="submit" :disabled="form.processing">
                                 {{ form.processing ? 'Creating...' : 'Create Ticket' }}
                             </Button>
-                            <Button type="button" variant="outline" @click="$inertia.visit(route('tickets.my-tickets'))">
+                            <Button type="button" variant="outline" @click="router.visit(route('tickets.my-tickets'))">
                                 Cancel
                             </Button>
                         </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -131,7 +131,7 @@ const submit = () => {
                                     <Checkbox
                                         :id="'role-' + role.id"
                                         :model-value="form.roles.includes(role.name)"
-                                        @update:modelValue="(checked) => handleRoleChange(role.name, checked)"
+                                        @update:modelValue="(checked) => handleRoleChange(role.name, Boolean(checked))"
                                     />
                                     <Label :for="'role-' + role.id" class="text-sm font-normal">
                                         {{ role.name }}
@@ -148,7 +148,7 @@ const submit = () => {
                         <Button
                             type="button"
                             variant="outline"
-                            @click="$inertia.visit(route('users.index'))"
+                            @click="router.visit(route('users.index'))"
                         >
                             Cancel
                         </Button>
