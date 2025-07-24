@@ -44,7 +44,7 @@ class TicketController extends Controller
     {
         $this->ticketService->create($request->validated(), auth()->user());
 
-        return redirect()->route('tickets.index')->with('success', 'Ticket created successfully');
+        return to_route('tickets.index')->with('success', 'Ticket created successfully');
     }
 
     public function edit(Ticket $ticket): Response
@@ -54,12 +54,13 @@ class TicketController extends Controller
         return Inertia::render('tickets/Edit', [
             'ticket' => $ticket->load(['category', 'comments.user', 'attachments.uploader']),
             'categories' => $categories,
+            "isSupport" => auth()->user()->hasPermissionTo('tickets.support'),
         ]);
     }
 
     public function update(UpdateTicketRequest $request, Ticket $ticket): RedirectResponse
     {
-        $ticket->update($request->all());
-        return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully');
+        $ticket->update($request->validated());
+        return back()->with('success', 'Ticket updated successfully');
     }
 }

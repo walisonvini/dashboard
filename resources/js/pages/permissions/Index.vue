@@ -57,7 +57,7 @@ watch(selectedRole, async (roleId) => {
     selectedPermissions.value = [];
     return;
   }
-  const { data } = await axios.get(route('permissions.role', { role: roleId }));
+  const { data } = await axios.get(route('permissions.getMenusWithPermissionsForRole', { role: roleId }));
   roleMenus.value = data;
 
   selectedPermissions.value = [];

@@ -38,7 +38,7 @@ class PermissionController extends Controller
 
         app()['cache']->forget('spatie.permission.cache');
 
-        return to_route('permissions.index')->with('success', 'Permissions updated successfully');
+        return back()->with('success', 'Permissions updated successfully');
     }
 
     public function getMenusWithPermissionsForRole($roleId): JsonResponse

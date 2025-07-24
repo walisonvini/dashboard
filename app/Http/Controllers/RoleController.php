@@ -34,24 +34,24 @@ class RoleController extends Controller
     public function store(StoreRoleRequest $request): RedirectResponse
     {
         Role::create($request->all());
-        return to_route('roles.index')->with('success', 'Role created successfully');
+        return back()->with('success', 'Role created successfully');
     }
 
     public function update(UpdateRoleRequest $request, Role $role): RedirectResponse
     {
 
         if (!$this->roleService->veryIfRoleIsModifiable($role->name)) {
-            return to_route('roles.index')->with('error', 'Role cannot be modified');
+            return back()->with('error', 'Role cannot be modified');
         }
 
         $role->update($request->all());
-        return to_route('roles.index')->with('success', 'Role updated successfully');
+        return back()->with('success', 'Role updated successfully');
     }
 
     public function destroy(Role $role): RedirectResponse
     {
         if (!$role->name || !$this->roleService->veryIfRoleIsModifiable($role->name)) {
-            return to_route('roles.index')->with('error', 'Role cannot be deleted');
+            return back()->with('error', 'Role cannot be deleted');
         }
 
         $usersWithRole = $role->users;
@@ -60,6 +60,6 @@ class RoleController extends Controller
 
         $this->roleService->setDefaultRole($usersWithRole);
 
-        return to_route('roles.index')->with('success', 'Role deleted successfully');
+        return back()->with('success', 'Role deleted successfully');
     }
 }

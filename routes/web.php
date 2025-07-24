@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return to_route('login');
 })->name('welcome');
 
 Route::middleware('auth')->group(function () {

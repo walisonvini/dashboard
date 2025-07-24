@@ -28,10 +28,12 @@ class RoleDeleteTest extends TestCase
     {
         $role = Role::factory()->create();
 
+        $this->get('/roles');
+
         $response = $this->delete('/roles/' . $role->id);
 
         $response
-            ->assertRedirect(route('roles.index'))
+            ->assertRedirect('/roles')
             ->assertSessionHas('success', 'Role deleted successfully');
 
         $this->assertDatabaseMissing('roles', [
@@ -44,14 +46,16 @@ class RoleDeleteTest extends TestCase
         $superRole = Role::where('name', 'super')->first();
         $defaultRole = Role::where('name', 'default')->first();
     
+        $this->get('/roles');
+
         $response = $this->delete('/roles/' . $superRole->id);
 
-        $response->assertRedirect(route('roles.index'));
+        $response->assertRedirect('/roles');
         $response->assertSessionHas('error', 'Role cannot be deleted');
 
         $response = $this->delete('/roles/' . $defaultRole->id);
 
-        $response->assertRedirect(route('roles.index'));
+        $response->assertRedirect('/roles');
         $response->assertSessionHas('error', 'Role cannot be deleted');
     }
 
@@ -67,10 +71,12 @@ class RoleDeleteTest extends TestCase
             $user->assignRole($role->name);
             $this->assertCount(1, $user->roles);
         }
+
+        $this->get('/roles');
     
         $response = $this->delete('/roles/' . $role->id);
     
-        $response->assertRedirect(route('roles.index'));
+        $response->assertRedirect('/roles');
         $response->assertSessionHas('success', 'Role deleted successfully');
     
         foreach ($users as $user) {
@@ -93,9 +99,11 @@ class RoleDeleteTest extends TestCase
         $user->assignRole($roleToDelete->name);
         $user->assignRole($remainingRole->name);
 
+        $this->get('/roles');
+
         $response = $this->delete('/roles/' . $roleToDelete->id);
 
-        $response->assertRedirect(route('roles.index'));
+        $response->assertRedirect('/roles');
         $response->assertSessionHas('success', 'Role deleted successfully');
 
         $freshUser = $user->fresh();

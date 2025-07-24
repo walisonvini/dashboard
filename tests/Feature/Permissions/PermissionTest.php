@@ -40,11 +40,13 @@ class PermissionTest extends TestCase
         Permission::firstOrCreate(['name' => 'users.view', 'guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'users.create', 'guard_name' => 'web']);
 
+        $this->get('/permissions');
+
         $response = $this->post('/permissions/' . $role->id, [
             'permissions' => ['users.view', 'users.create']
         ]);
 
-        $response->assertRedirect(route('permissions.index'));
+        $response->assertRedirect('/permissions');
         $response->assertSessionHas('success', 'Permissions updated successfully');
 
         $this->assertTrue($role->hasPermissionTo('users.view', 'web'));
@@ -60,11 +62,13 @@ class PermissionTest extends TestCase
         
         $role->givePermissionTo(['users.view', 'users.create']);
 
+        $this->get('/permissions');
+
         $response = $this->post('/permissions/' . $role->id, [
             'permissions' => []
         ]);
 
-        $response->assertRedirect(route('permissions.index'));
+        $response->assertRedirect('/permissions');
         $response->assertSessionHas('success', 'Permissions updated successfully');
 
         $this->assertFalse($role->hasPermissionTo('users.view', 'web'));
@@ -79,6 +83,8 @@ class PermissionTest extends TestCase
         Permission::firstOrCreate(['name' => 'users.create', 'guard_name' => 'web']);
         
         $role->givePermissionTo(['users.view', 'users.create']);
+
+        $this->get('/permissions');
 
         $response = $this->get('/permissions/role/' . $role->id);
 
@@ -123,10 +129,12 @@ class PermissionTest extends TestCase
             $mock->shouldReceive('put')->andReturn(true);
         });
 
+        $this->get('/permissions');
+
         $response = $this->post('/permissions/' . $role->id, [
             'permissions' => ['users.view']
         ]);
 
-        $response->assertRedirect(route('permissions.index'));
+        $response->assertRedirect('/permissions');
     }
 } 

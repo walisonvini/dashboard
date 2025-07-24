@@ -11,7 +11,7 @@ class UpdateTicketRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,8 @@ class UpdateTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', 'string', 'max:255'],
+            'priority' => ['required', 'string', 'in:low,medium,high'],
+            'category' => ['required', 'integer', 'exists:ticket_categories,id'],
         ];
     }
 }

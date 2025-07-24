@@ -10,6 +10,7 @@ import { Ticket, TicketCategory } from '@/types/ticket';
 const props = defineProps<{
   ticket: Ticket;
   categories: TicketCategory[];
+  isSupport: boolean;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -48,7 +49,7 @@ const mockAttachments = [
 
                   <!-- Right Column - Actions -->
       <div class="w-full xl:w-80 flex-shrink-0 order-3 xl:order-3">
-        <TicketActions :ticket="props.ticket" :categories="props.categories" />
+        <TicketActions :ticket="props.ticket" :categories="props.categories" :is-support="props.isSupport" />
       </div>
     </div>
   </AppLayout>

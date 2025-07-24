@@ -4,13 +4,25 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Ticket, TicketCategory } from '@/types/ticket';
+import { useForm } from '@inertiajs/vue3';
 
 interface Props {
     ticket: Ticket;
     categories: TicketCategory[];
+    isSupport: boolean;
 }
 
 const props = defineProps<Props>();
+
+const form = useForm({
+    priority: props.ticket.priority,
+    category: props.ticket.category.id,
+});
+
+const saveChanges = () => {
+    form.put(route('tickets.update', props.ticket.id));
+};
+
 </script>
 
 <template>
@@ -30,7 +42,10 @@ const props = defineProps<Props>();
             <!-- Priority -->
             <div class="space-y-2">
                 <Label>Priority</Label>
-                <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <select 
+                    v-model="form.priority"
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
@@ -40,8 +55,11 @@ const props = defineProps<Props>();
             <!-- Category -->
             <div class="space-y-2">
                 <Label>Category</Label>
-                <select class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                    <option :value="ticket.category.id">{{ ticket.category.name }}</option>
+                <select 
+                    v-model="form.category"
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                    <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
                 </select>
             </div>
 
@@ -49,9 +67,9 @@ const props = defineProps<Props>();
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-2">
-                <Button class="w-full">Save Changes</Button>
-                <Button variant="outline" class="w-full">Assign Ticket</Button>
-                <Button variant="outline" class="w-full">Close Ticket</Button>
+                <Button @click="saveChanges" class="w-full">Save Changes</Button>
+                <Button v-if="isSupport" variant="outline" class="w-full">Assign Ticket</Button>
+                <Button v-if="isSupport" variant="outline" class="w-full">Close Ticket</Button>
             </div>
 
             <Separator />
