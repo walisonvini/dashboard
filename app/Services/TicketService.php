@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Ticket;
 use App\Models\TicketComment;
 
+use App\Enums\TicketStatus\TicketStatus;
+
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -78,5 +80,59 @@ class TicketService
     {
         return Ticket::with(['category', 'attachments', 'comments.user', 'comments.attachments'])
                     ->findOrFail($ticketId);
+    }
+
+    public function changeTicketStatus($ticket, $status)
+    {
+        $ticket->status = $status;
+        $ticket->save();
+    }
+
+    public function updateTicket($ticket, $data)
+    {
+        if($this->verifyIfTicketIsClosed($ticket)) {
+            throw new \Exception('Ticket is closed and cannot be updated');
+        }
+
+        $ticket->update($data);
+
+        return $ticket;
+    }
+
+    public function assignTicket($ticket)
+    {
+        if($this->verifyIfTicketIsClosed($ticket)) {
+            throw new \Exception('Ticket is closed and cannot be assigned');
+        }
+
+        $this->changeTicketStatus($ticket, TicketStatus::InProgress);
+
+        $ticket->users()->attach(auth()->user()->id, ['role' => 'assigned']);
+    }
+
+    
+    public function unassignTicket($ticket)
+    {
+        if($this->verifyIfTicketIsClosed($ticket)) {
+            throw new \Exception('Ticket is closed and cannot be unassigned');
+        }
+
+        $ticket->users()->detach(auth()->user()->id);
+
+        if(!$this->verifyIfTicketHaveAssignedUser($ticket)) {
+            $this->changeTicketStatus($ticket, TicketStatus::Open);
+        } else {
+            $this->changeTicketStatus($ticket, TicketStatus::InProgress);
+        }
+    }
+
+    public function verifyIfTicketHaveAssignedUser($ticket)
+    {
+        return $ticket->users()->where('role', 'assigned')->exists();
+    }
+
+    public function verifyIfTicketIsClosed($ticket)
+    {
+        return $ticket->status == TicketStatus::Closed;
     }
 }

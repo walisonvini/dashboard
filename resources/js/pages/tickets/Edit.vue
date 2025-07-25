@@ -5,7 +5,7 @@ import { type BreadcrumbItem } from '@/types';
 import TicketAttachments from '@/components/tickets/TicketAttachments.vue';
 import TicketChat from '@/components/tickets/TicketChat.vue';
 import TicketActions from '@/components/tickets/TicketActions.vue';
-import { Ticket, TicketCategory } from '@/types/ticket';
+import { type Ticket, type TicketCategory } from '@/types';
 
 const props = defineProps<{
   ticket: Ticket;
@@ -23,13 +23,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: `/tickets/${props.ticket.id}`,
     },
 ];
-
-// Mock data for visual demonstration
-const mockAttachments = [
-    { id: 1, ticket_id: 1, file_name: 'screenshot.png', original_name: 'screenshot.png', uploaded_by: 1, created_at: '2024-01-15 10:30' },
-    { id: 2, ticket_id: 1, file_name: 'error_log.txt', original_name: 'error_log.txt', uploaded_by: 1, created_at: '2024-01-15 09:45' },
-];
-
 
 </script>
 

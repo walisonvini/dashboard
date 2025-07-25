@@ -13,6 +13,7 @@ use App\Http\Requests\Tickets\StoreTicketRequest;
 use App\Http\Requests\Tickets\UpdateTicketRequest;
 
 use App\Services\TicketService;
+use App\Enums\TicketStatus\TicketStatus;
 
 class TicketController extends Controller
 {
@@ -52,7 +53,7 @@ class TicketController extends Controller
         $categories = TicketCategory::all();
 
         return Inertia::render('tickets/Edit', [
-            'ticket' => $ticket->load(['category', 'comments.user', 'attachments.uploader']),
+            'ticket' => $ticket->load(['category', 'comments.user', 'attachments.uploader', 'users']),
             'categories' => $categories,
             "isSupport" => auth()->user()->hasPermissionTo('tickets.support'),
         ]);
@@ -60,7 +61,43 @@ class TicketController extends Controller
 
     public function update(UpdateTicketRequest $request, Ticket $ticket): RedirectResponse
     {
-        $ticket->update($request->validated());
-        return back()->with('success', 'Ticket updated successfully');
+        try {
+            $this->ticketService->updateTicket($ticket, $request->validated());
+            return back()->with('success', 'Ticket updated successfully');
+        } catch(\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function assign(Ticket $ticket): RedirectResponse
+    {
+        try {
+            $this->ticketService->assignTicket($ticket);
+            return back()->with('success', 'Ticket assigned successfully');
+        } catch(\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function unassign(Ticket $ticket): RedirectResponse
+    {
+        try {
+            $this->ticketService->unassignTicket($ticket);
+            return back()->with('success', 'Ticket unassigned successfully');
+        } catch(\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function close(Ticket $ticket): RedirectResponse
+    {
+        $ticket->update(['status' => 'closed']);
+        return back()->with('success', 'Ticket closed successfully');
+    }
+
+    public function open(Ticket $ticket): RedirectResponse
+    {
+        $ticket->update(['status' => 'open']);
+        return back()->with('success', 'Ticket opened successfully');
     }
 }

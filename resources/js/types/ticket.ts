@@ -1,3 +1,5 @@
+import type { User } from './index';
+
 export interface TicketCategory {
     id: number;
     name: string;
@@ -12,6 +14,7 @@ export interface Ticket {
     category: TicketCategory;
     comments?: TicketComment[];
     attachments?: TicketAttachment[];
+    users?: User[];
 }
 
 export interface TicketAttachment {

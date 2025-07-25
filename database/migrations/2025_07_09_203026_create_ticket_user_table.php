@@ -11,7 +11,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('ticket_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->enum('role', ['requester', 'assigned', 'observer'])->default('observer');
+            $table->enum('role', ['requester', 'assigned', 'observer', 'contributor'])->default('requester');
             $table->timestamps();
 
             $table->unique(['ticket_id', 'user_id']);

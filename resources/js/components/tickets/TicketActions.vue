@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Ticket, TicketCategory } from '@/types/ticket';
 import { useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 interface Props {
     ticket: Ticket;
@@ -19,8 +20,26 @@ const form = useForm({
     category: props.ticket.category.id,
 });
 
+const isTicketClosed = computed(() => props.ticket.status === 'closed');
+
 const saveChanges = () => {
     form.put(route('tickets.update', props.ticket.id));
+};
+
+const assignTicket = () => {
+    form.post(route('tickets.assign', props.ticket.id));
+};
+
+const unassignTicket = () => {
+    form.post(route('tickets.unassign', props.ticket.id));
+};
+
+const closeTicket = () => {
+    form.post(route('tickets.close', props.ticket.id));
+};
+
+const openTicket = () => {
+    form.post(route('tickets.open', props.ticket.id));
 };
 
 </script>
@@ -44,6 +63,7 @@ const saveChanges = () => {
                 <Label>Priority</Label>
                 <select 
                     v-model="form.priority"
+                    :disabled="isTicketClosed"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                     <option value="low">Low</option>
@@ -57,6 +77,7 @@ const saveChanges = () => {
                 <Label>Category</Label>
                 <select 
                     v-model="form.category"
+                    :disabled="isTicketClosed"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                     <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
@@ -68,8 +89,51 @@ const saveChanges = () => {
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-2">
                 <Button @click="saveChanges" class="w-full">Save Changes</Button>
-                <Button v-if="isSupport" variant="outline" class="w-full">Assign Ticket</Button>
-                <Button v-if="isSupport" variant="outline" class="w-full">Close Ticket</Button>
+
+                <Button 
+                    v-if="isSupport && !ticket.users?.some(user => user.id === $page.props.auth.user.id && user.pivot.role === 'assigned')" 
+                    @click="assignTicket"
+                    variant="outline"
+                    class="w-full"
+                >
+                    Assign Ticket
+                </Button>
+
+                <Button
+                    v-if="isSupport && ticket.users?.some(user => user.id === $page.props.auth.user.id && user.pivot.role === 'assigned')" 
+                    @click="unassignTicket" 
+                    variant="outline"
+                    class="w-full"
+                >
+                    Unassign Ticket
+                </Button>
+
+                <Button
+                    v-if="isSupport && ticket.users?.some(user => user.id === $page.props.auth.user.id && user.pivot.role === 'assigned')" 
+                    @click="resolveTicket" 
+                    variant="outline" 
+                    class="w-full"
+                >
+                    Resolve Ticket
+                </Button>
+
+                <Button 
+                    v-if="isSupport && ticket.status !== 'closed'" 
+                    @click="closeTicket" 
+                    variant="outline" 
+                    class="w-full"
+                >
+                    Close Ticket
+                </Button>
+
+                <Button 
+                    v-if="isSupport && ticket.status === 'closed'" 
+                    @click="openTicket" 
+                    variant="outline" 
+                    class="w-full"
+                >
+                    Reopen Ticket
+                </Button>
             </div>
 
             <Separator />
@@ -80,15 +144,27 @@ const saveChanges = () => {
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
                         <span class="text-muted-foreground">Created at:</span>
-                        <span>01/01/2024</span>
+                        <span>{{ new Date(ticket.created_at).toLocaleDateString() }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-muted-foreground">Updated at:</span>
-                        <span>01/01/2024</span>
+                        <span>{{ new Date(ticket.updated_at).toLocaleDateString() }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-muted-foreground">Requester:</span>
+                        <span>{{ ticket.users?.filter(user => user.pivot.role === 'requester').map(user => user.name).join(', ') }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-muted-foreground">Assigned to:</span>
-                        <span>Unassigned</span>
+                        <span>{{ ticket.users?.filter(user => user.pivot.role === 'assigned').map(user => user.name).join(', ') || 'None' }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-muted-foreground">Contributors:</span>
+                        <span>{{ ticket.users?.filter(user => user.pivot.role === 'contributor').map(user => user.name).join(', ') || 'None' }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-muted-foreground">Observers:</span>
+                        <span>{{ ticket.users?.filter(user => user.pivot.role === 'observer').map(user => user.name).join(', ') || 'None' }}</span>
                     </div>
                 </div>
             </div>
