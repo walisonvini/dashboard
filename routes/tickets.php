@@ -18,7 +18,4 @@ Route::middleware('auth')->group(function () {
 
     Route::post('tickets/{ticket}/assign', [TicketController::class, 'assign'])->name('tickets.assign')->middleware('permission:tickets.support');
     Route::post('tickets/{ticket}/unassign', [TicketController::class, 'unassign'])->name('tickets.unassign')->middleware('permission:tickets.support');
-
-    Route::post('tickets/{ticket}/close', [TicketController::class, 'close'])->name('tickets.close')->middleware('permission:tickets.support');
-    Route::post('tickets/{ticket}/open', [TicketController::class, 'open'])->name('tickets.open')->middleware('permission:tickets.support');
 }); 

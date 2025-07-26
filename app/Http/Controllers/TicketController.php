@@ -88,16 +88,4 @@ class TicketController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
-
-    public function close(Ticket $ticket): RedirectResponse
-    {
-        $ticket->update(['status' => 'closed']);
-        return back()->with('success', 'Ticket closed successfully');
-    }
-
-    public function open(Ticket $ticket): RedirectResponse
-    {
-        $ticket->update(['status' => 'open']);
-        return back()->with('success', 'Ticket opened successfully');
-    }
 }

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Ticket, TicketCategory } from '@/types/ticket';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 interface Props {
@@ -14,13 +14,16 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const page = usePage();
 
 const form = useForm({
     priority: props.ticket.priority,
     category: props.ticket.category.id,
+    status: props.ticket.status,
 });
 
 const isTicketClosed = computed(() => props.ticket.status === 'closed');
+const isTicketOpen = computed(() => props.ticket.status === 'open');
 
 const saveChanges = () => {
     form.put(route('tickets.update', props.ticket.id));
@@ -33,15 +36,6 @@ const assignTicket = () => {
 const unassignTicket = () => {
     form.post(route('tickets.unassign', props.ticket.id));
 };
-
-const closeTicket = () => {
-    form.post(route('tickets.close', props.ticket.id));
-};
-
-const openTicket = () => {
-    form.post(route('tickets.open', props.ticket.id));
-};
-
 </script>
 
 <template>
@@ -53,9 +47,19 @@ const openTicket = () => {
             <!-- Status -->
             <div class="space-y-2">
                 <Label>Status</Label>
-                <div class="flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    <span class="capitalize">{{ ticket.status }}</span>
-                </div>
+                <select 
+                    v-model="form.status"
+                    :disabled="!isSupport"
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="waiting_user">Waiting User</option>
+                    <option value="waiting_third_party">Waiting Third Party</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                    <option value="canceled">Canceled</option>
+                </select>
             </div>
 
             <!-- Priority -->
@@ -63,7 +67,7 @@ const openTicket = () => {
                 <Label>Priority</Label>
                 <select 
                     v-model="form.priority"
-                    :disabled="isTicketClosed"
+                    :disabled="!isTicketOpen && !isSupport"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                     <option value="low">Low</option>
@@ -77,7 +81,7 @@ const openTicket = () => {
                 <Label>Category</Label>
                 <select 
                     v-model="form.category"
-                    :disabled="isTicketClosed"
+                    :disabled="!isTicketOpen && !isSupport"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                     <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
@@ -88,10 +92,10 @@ const openTicket = () => {
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-2">
-                <Button @click="saveChanges" class="w-full">Save Changes</Button>
+                <Button @click="saveChanges" class="w-full" :disabled="!isTicketOpen && !isSupport">Save Changes</Button>
 
                 <Button 
-                    v-if="isSupport && !ticket.users?.some(user => user.id === $page.props.auth.user.id && user.pivot.role === 'assigned')" 
+                    v-if="isSupport && !ticket.users?.some(user => user.id === (page.props.auth as any).user.id && user.pivot.role === 'assigned')" 
                     @click="assignTicket"
                     variant="outline"
                     class="w-full"
@@ -100,39 +104,12 @@ const openTicket = () => {
                 </Button>
 
                 <Button
-                    v-if="isSupport && ticket.users?.some(user => user.id === $page.props.auth.user.id && user.pivot.role === 'assigned')" 
+                    v-if="isSupport && ticket.users?.some(user => user.id === (page.props.auth as any).user.id && user.pivot.role === 'assigned')" 
                     @click="unassignTicket" 
                     variant="outline"
                     class="w-full"
                 >
                     Unassign Ticket
-                </Button>
-
-                <Button
-                    v-if="isSupport && ticket.users?.some(user => user.id === $page.props.auth.user.id && user.pivot.role === 'assigned')" 
-                    @click="resolveTicket" 
-                    variant="outline" 
-                    class="w-full"
-                >
-                    Resolve Ticket
-                </Button>
-
-                <Button 
-                    v-if="isSupport && ticket.status !== 'closed'" 
-                    @click="closeTicket" 
-                    variant="outline" 
-                    class="w-full"
-                >
-                    Close Ticket
-                </Button>
-
-                <Button 
-                    v-if="isSupport && ticket.status === 'closed'" 
-                    @click="openTicket" 
-                    variant="outline" 
-                    class="w-full"
-                >
-                    Reopen Ticket
                 </Button>
             </div>
 

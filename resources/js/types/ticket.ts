@@ -14,7 +14,9 @@ export interface Ticket {
     category: TicketCategory;
     comments?: TicketComment[];
     attachments?: TicketAttachment[];
-    users?: User[];
+    users?: (User & { pivot: { role: string } })[];
+    created_at: string;
+    updated_at: string;
 }
 
 export interface TicketAttachment {

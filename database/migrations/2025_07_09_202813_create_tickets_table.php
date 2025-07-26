@@ -11,8 +11,8 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['open', 'in_progress', 'resolved', 'closed'])->default('open');
-            $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
+            $table->enum('status', ['open', 'in_progress', 'waiting_user', 'waiting_third_party', 'resolved', 'closed', 'canceled'])->default('open');
+            $table->enum('priority', ['low', 'medium', 'high'])->default('low');
             $table->foreignId('category_id')->nullable()->constrained('ticket_categories')->nullOnDelete();
             $table->timestamps();
         });

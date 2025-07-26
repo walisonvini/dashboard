@@ -82,16 +82,10 @@ class TicketService
                     ->findOrFail($ticketId);
     }
 
-    public function changeTicketStatus($ticket, $status)
-    {
-        $ticket->status = $status;
-        $ticket->save();
-    }
-
     public function updateTicket($ticket, $data)
     {
-        if($this->verifyIfTicketIsClosed($ticket)) {
-            throw new \Exception('Ticket is closed and cannot be updated');
+        if(!$this->verifyIfTicketIsOpen($ticket) && !auth()->user()->hasPermissionTo('tickets.support')) {
+            throw new \Exception('Ticket is not open and cannot be updated');
         }
 
         $ticket->update($data);
@@ -101,11 +95,9 @@ class TicketService
 
     public function assignTicket($ticket)
     {
-        if($this->verifyIfTicketIsClosed($ticket)) {
-            throw new \Exception('Ticket is closed and cannot be assigned');
+        if($ticket->users()->where('role', '<>', 'assigned')->where('user_id', auth()->user()->id)->exists()) {
+            throw new \Exception('You cannot provide support if you are the requester or already have another role in this ticket');
         }
-
-        $this->changeTicketStatus($ticket, TicketStatus::InProgress);
 
         $ticket->users()->attach(auth()->user()->id, ['role' => 'assigned']);
     }
@@ -113,26 +105,11 @@ class TicketService
     
     public function unassignTicket($ticket)
     {
-        if($this->verifyIfTicketIsClosed($ticket)) {
-            throw new \Exception('Ticket is closed and cannot be unassigned');
-        }
-
         $ticket->users()->detach(auth()->user()->id);
-
-        if(!$this->verifyIfTicketHaveAssignedUser($ticket)) {
-            $this->changeTicketStatus($ticket, TicketStatus::Open);
-        } else {
-            $this->changeTicketStatus($ticket, TicketStatus::InProgress);
-        }
     }
 
-    public function verifyIfTicketHaveAssignedUser($ticket)
+    public function verifyIfTicketIsOpen($ticket)
     {
-        return $ticket->users()->where('role', 'assigned')->exists();
-    }
-
-    public function verifyIfTicketIsClosed($ticket)
-    {
-        return $ticket->status == TicketStatus::Closed;
+        return $ticket->status == TicketStatus::Open;
     }
 }

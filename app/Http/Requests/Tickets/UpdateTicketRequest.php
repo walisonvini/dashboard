@@ -24,6 +24,7 @@ class UpdateTicketRequest extends FormRequest
         return [
             'priority' => ['required', 'string', 'in:low,medium,high'],
             'category' => ['required', 'integer', 'exists:ticket_categories,id'],
+            'status' => ['required', 'string', 'in:open,in_progress,waiting_user,waiting_third_party,resolved,closed,canceled'],
         ];
     }
 }
