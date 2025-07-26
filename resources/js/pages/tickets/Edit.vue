@@ -5,7 +5,7 @@ import { type BreadcrumbItem } from '@/types';
 import TicketAttachments from '@/components/tickets/TicketAttachments.vue';
 import TicketChat from '@/components/tickets/TicketChat.vue';
 import TicketActions from '@/components/tickets/TicketActions.vue';
-import { type Ticket, type TicketCategory } from '@/types';
+import { type Ticket, type TicketCategory } from '@/types/ticket';
 
 const props = defineProps<{
   ticket: Ticket;

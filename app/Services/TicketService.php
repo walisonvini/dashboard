@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Models\Ticket;
 use App\Models\TicketComment;
 
-use App\Enums\TicketStatus\TicketStatus;
-
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -84,7 +82,7 @@ class TicketService
 
     public function updateTicket($ticket, $data)
     {
-        if(!$this->verifyIfTicketIsOpen($ticket) && !auth()->user()->hasPermissionTo('tickets.support')) {
+        if(!$ticket->isOpen() && !auth()->user()->hasPermissionTo('tickets.support')) {
             throw new \Exception('Ticket is not open and cannot be updated');
         }
 
@@ -106,10 +104,5 @@ class TicketService
     public function unassignTicket($ticket)
     {
         $ticket->users()->detach(auth()->user()->id);
-    }
-
-    public function verifyIfTicketIsOpen($ticket)
-    {
-        return $ticket->status == TicketStatus::Open;
     }
 }

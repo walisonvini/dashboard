@@ -13,7 +13,6 @@ use App\Http\Requests\Tickets\StoreTicketRequest;
 use App\Http\Requests\Tickets\UpdateTicketRequest;
 
 use App\Services\TicketService;
-use App\Enums\TicketStatus\TicketStatus;
 
 class TicketController extends Controller
 {

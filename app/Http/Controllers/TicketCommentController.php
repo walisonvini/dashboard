@@ -11,6 +11,10 @@ class TicketCommentController extends Controller
     public function store(StoreTicketCommentRequest $request, Ticket $ticket): JsonResponse  
     {
         try {
+            if($ticket->isClosedOrCanceled()) {
+                throw new \Exception('Ticket is closed or canceled.');
+            }
+
             $comment = $ticket->comments()->create([
                 'user_id' => auth()->id(),
                 'comment' => $request->validated()['comment']
@@ -23,7 +27,7 @@ class TicketCommentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to create comment',
+                'message' => 'Could not send comment.',
                 'error' => $e->getMessage()
             ], 500);
         }

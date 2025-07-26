@@ -2,13 +2,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Paperclip } from 'lucide-vue-next';
-import { TicketAttachment } from '@/types/ticket';
-import { ref } from 'vue';
+import { Ticket, TicketAttachment } from '@/types/ticket';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
 
 interface Props {
-    ticket: { id: number };
+    ticket: Ticket;
     attachments: TicketAttachment[];
 }
 
@@ -20,6 +20,9 @@ const localAttachments = ref<TicketAttachment[]>([...props.attachments]);
 const triggerFileInput = () => {
     fileInput.value?.click();
 };
+
+const isTicketClosed = computed(() => props.ticket.status === 'closed');
+const isTicketCanceled = computed(() => props.ticket.status === 'canceled');
 
 const selectedFiles = ref<File[]>([]);
 
@@ -91,6 +94,7 @@ const downloadAttachment = (attachment: TicketAttachment) => {
             class="hidden"
             @change="handleFileSelection"
             accept="*/*"
+            :disabled="isTicketClosed || isTicketCanceled"
         />
         <CardHeader>
             <div class="flex items-center justify-between">

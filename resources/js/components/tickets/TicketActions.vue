@@ -22,7 +22,6 @@ const form = useForm({
     status: props.ticket.status,
 });
 
-const isTicketClosed = computed(() => props.ticket.status === 'closed');
 const isTicketOpen = computed(() => props.ticket.status === 'open');
 
 const saveChanges = () => {

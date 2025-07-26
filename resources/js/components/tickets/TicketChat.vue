@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Send,  User, Clock } from 'lucide-vue-next';
-import { ref, nextTick, onMounted } from 'vue';
+import { ref, nextTick, onMounted, computed } from 'vue';
 import { Ticket, TicketComment } from '@/types/ticket';
-import axios from 'axios';
 import { useToast } from '@/composables/useToast';
+import { useTicketStatus } from '@/composables/useTicketStatus';
+import axios from 'axios';
+
 
 interface Props {
     ticket: Ticket;
@@ -33,6 +35,8 @@ const scrollToBottom = () => {
     });
 };
 
+const { isTicketClosedOrCanceled } = useTicketStatus(props.ticket);
+
 const sendMessage = async () => {
     if (newMessage.value.trim()) {
         try {
@@ -46,7 +50,7 @@ const sendMessage = async () => {
                 scrollToBottom();
             }
         } catch (error) {
-            showError('Error', 'Could not send comment. Please try again.');
+            showError('Error', (error as any).response.data.error + ' ' + (error as any).response.data.message);
         }
     }
 };
@@ -132,9 +136,10 @@ onMounted(() => {
                         placeholder="Type your message..."
                         class="flex-1 min-h-[80px] max-h-32 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         rows="1"
+                        :disabled="isTicketClosedOrCanceled"
                         @keydown="handleKeyPress"
                     />
-                    <Button @click="sendMessage" :disabled="!newMessage.trim()">
+                    <Button @click="sendMessage" :disabled="!newMessage.trim() || isTicketClosedOrCanceled">
                         <Send class="w-4 h-4" />
                     </Button>
                 </div>

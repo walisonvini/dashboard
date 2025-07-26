@@ -48,4 +48,14 @@ class Ticket extends Model
     {
         return $this->belongsTo(TicketCategory::class);
     }
+
+    public function isClosedOrCanceled(): bool
+    {
+        return $this->status === TicketStatus::Closed || $this->status === TicketStatus::Canceled;
+    }
+
+    public function isOpen(): bool
+    {
+        return $this->status === TicketStatus::Open;
+    }
 }

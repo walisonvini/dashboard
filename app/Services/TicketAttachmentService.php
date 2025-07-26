@@ -9,6 +9,10 @@ class TicketAttachmentService
 {
     public function uploadFiles(Ticket $ticket, array $files): array
     {
+        if($ticket->isClosedOrCanceled()) {
+            throw new \Exception('Ticket is closed or canceled and cannot be updated');
+        }
+
         $attachments = [];
 
         foreach ($files as $file) {
