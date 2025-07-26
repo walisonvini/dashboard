@@ -7,6 +7,7 @@ import { ref, nextTick, onMounted, computed } from 'vue';
 import { Ticket, TicketComment } from '@/types/ticket';
 import { useToast } from '@/composables/useToast';
 import { useTicketStatus } from '@/composables/useTicketStatus';
+import { useTicketFormatting } from '@/composables/useTicketFormatting';
 import axios from 'axios';
 
 
@@ -36,6 +37,7 @@ const scrollToBottom = () => {
 };
 
 const { isTicketClosedOrCanceled } = useTicketStatus(props.ticket);
+const { formatStatus, formatPriority, getStatusVariant, getPriorityVariant } = useTicketFormatting();
 
 const sendMessage = async () => {
     if (newMessage.value.trim()) {
@@ -77,16 +79,16 @@ onMounted(() => {
                 </div>
                 <div class="flex items-center gap-1 md:gap-2">
                     <Badge 
-                        :variant="ticket.status === 'open' ? 'open' : ticket.status === 'in_progress' ? 'in_progress' : 'closed'"
+                        :variant="getStatusVariant(ticket.status) as any"
                         class="text-xs"
                     >
-                        {{ ticket.status }}
+                        {{ formatStatus(ticket.status) }}
                     </Badge>
                     <Badge 
-                        :variant="ticket.priority === 'low' ? 'low' : ticket.priority === 'medium' ? 'medium' : 'high'"
+                        :variant="getPriorityVariant(ticket.priority) as any"
                         class="text-xs"
                     >
-                        {{ ticket.priority }}
+                        {{ formatPriority(ticket.priority) }}
                     </Badge>
                 </div>
             </div>

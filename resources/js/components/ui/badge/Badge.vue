@@ -1,9 +1,9 @@
 <script setup lang="ts">
 interface Props {
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'low' | 'medium' | 'high' | 'open' | 'in_progress' | 'closed' | 'dash';
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'low' | 'medium' | 'high' | 'open' | 'in_progress' | 'closed' | 'resolved';
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   variant: 'default'
 });
 
@@ -18,7 +18,7 @@ const variantClasses = {
   open: 'border-blue-700 text-blue-700 dark:border-blue-200 dark:text-blue-200',
   in_progress: 'border-orange-700 text-orange-700 dark:border-orange-200 dark:text-orange-200',
   closed: 'border-gray-500 text-gray-500 dark:border-gray-300 dark:text-gray-300',
-  dash: 'border-dashed border-2 border-gray-800 text-gray-800 dark:border-neutral-200 dark:text-white'
+  resolved: 'border-green-700 text-green-700 dark:border-green-200 dark:text-green-200'
 };
 
 const baseClasses = 'inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium border';

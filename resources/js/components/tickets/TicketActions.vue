@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Ticket, TicketCategory } from '@/types/ticket';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { useTicketFormatting } from '@/composables/useTicketFormatting';
 
 interface Props {
     ticket: Ticket;
@@ -15,6 +16,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const page = usePage();
+const { formatStatus, formatPriority } = useTicketFormatting();
 
 const form = useForm({
     priority: props.ticket.priority,
@@ -51,13 +53,13 @@ const unassignTicket = () => {
                     :disabled="!isSupport"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
-                    <option value="open">Open</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="waiting_user">Waiting User</option>
-                    <option value="waiting_third_party">Waiting Third Party</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="closed">Closed</option>
-                    <option value="canceled">Canceled</option>
+                    <option value="open">{{ formatStatus('open') }}</option>
+                    <option value="in_progress">{{ formatStatus('in_progress') }}</option>
+                    <option value="waiting_user">{{ formatStatus('waiting_user') }}</option>
+                    <option value="waiting_third_party">{{ formatStatus('waiting_third_party') }}</option>
+                    <option value="resolved">{{ formatStatus('resolved') }}</option>
+                    <option value="closed">{{ formatStatus('closed') }}</option>
+                    <option value="canceled">{{ formatStatus('canceled') }}</option>
                 </select>
             </div>
 
@@ -69,9 +71,9 @@ const unassignTicket = () => {
                     :disabled="!isTicketOpen && !isSupport"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
+                    <option value="low">{{ formatPriority('low') }}</option>
+                    <option value="medium">{{ formatPriority('medium') }}</option>
+                    <option value="high">{{ formatPriority('high') }}</option>
                 </select>
             </div>
 

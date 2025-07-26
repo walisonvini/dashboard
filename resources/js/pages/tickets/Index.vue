@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Eye } from 'lucide-vue-next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTicketFormatting } from '@/composables/useTicketFormatting';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,9 +28,12 @@ interface Ticket {
     updated_at: string;
 }
 
-const props = defineProps<{
+defineProps<{
     tickets: Ticket[]
 }>();
+
+const { formatStatus, formatPriority, getStatusVariant } = useTicketFormatting();
+
 </script>
 
 <template>
@@ -66,13 +70,13 @@ const props = defineProps<{
                             </TableCell>
                             <TableCell>{{ ticket.category.name }}</TableCell>
                             <TableCell class="text-center">
-                                <Badge :variant="ticket.status === 'open' ? 'open' : ticket.status === 'in_progress' ? 'in_progress' : 'closed'">
-                                    {{ ticket.status }}
+                                <Badge :variant="getStatusVariant(ticket.status) as any">
+                                    {{ formatStatus(ticket.status) }}
                                 </Badge>
                             </TableCell>
                             <TableCell class="text-center">
                                 <Badge :variant="ticket.priority === 'low' ? 'low' : ticket.priority === 'medium' ? 'medium' : 'high'">
-                                    {{ ticket.priority }}
+                                    {{ formatPriority(ticket.priority) }}
                                 </Badge>
                             </TableCell>
                             <TableCell>{{ new Date(ticket.updated_at).toLocaleString('pt-BR') }}</TableCell>
