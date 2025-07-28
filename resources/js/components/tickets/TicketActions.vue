@@ -5,8 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Ticket, TicketCategory } from '@/types/ticket';
 import { useForm, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useTicketFormatting } from '@/composables/useTicketFormatting';
+import TicketUsersModal from '@/components/tickets/TicketUsersModal.vue';
 
 interface Props {
     ticket: Ticket;
@@ -25,6 +26,11 @@ const form = useForm({
 });
 
 const isTicketOpen = computed(() => props.ticket.status === 'open');
+const isAddUserModalOpen = ref(false);
+
+const openAddUserModal = () => {
+    isAddUserModalOpen.value = true;
+};
 
 const saveChanges = () => {
     form.put(route('tickets.update', props.ticket.id));
@@ -112,6 +118,15 @@ const unassignTicket = () => {
                 >
                     Unassign Ticket
                 </Button>
+
+                <!-- Add user -->
+                <Button
+                    variant="outline"
+                    class="w-full"
+                    @click="openAddUserModal"
+                >
+                    Ticket Users
+                </Button>
             </div>
 
             <Separator />
@@ -146,6 +161,10 @@ const unassignTicket = () => {
                     </div>
                 </div>
             </div>
+
+            <TicketUsersModal
+                v-model:isOpen="isAddUserModalOpen"
+            />
         </CardContent>
     </Card>
 </template> 

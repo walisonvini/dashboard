@@ -100,9 +100,26 @@ class TicketService
         $ticket->users()->attach(auth()->user()->id, ['role' => 'assigned']);
     }
 
-    
     public function unassignTicket($ticket)
     {
         $ticket->users()->detach(auth()->user()->id);
+    }
+
+    public function addUser($ticket, $user, $role)
+    {
+        if($ticket->users()->where('user_id', $user->id)->exists()) {
+            throw new \Exception('User is already a ' . $role);
+        }
+        
+        $ticket->users()->attach($user->id, ['role' => $role]);
+    }
+
+    public function removeUser($ticket, $user)
+    {
+        if($ticket->users()->where('user_id', $user->id)->where('role', 'assigned')->exists()) {
+            throw new \Exception('You cannot remove the assigned user');
+        }
+
+        $ticket->users()->detach($user->id);
     }
 }

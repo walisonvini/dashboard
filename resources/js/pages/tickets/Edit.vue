@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { type BreadcrumbItem } from '@/types';
 import TicketAttachments from '@/components/tickets/TicketAttachments.vue';
 import TicketChat from '@/components/tickets/TicketChat.vue';

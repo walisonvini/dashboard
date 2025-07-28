@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Models\TicketCategory;
+use App\Models\User;
 
 use Inertia\Inertia;
 use Inertia\Response;
@@ -83,6 +84,16 @@ class TicketController extends Controller
         try {
             $this->ticketService->unassignTicket($ticket);
             return back()->with('success', 'Ticket unassigned successfully');
+        } catch(\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function addUser(Ticket $ticket, User $user, string $role): RedirectResponse
+    {
+        try {
+            $this->ticketService->addUser($ticket, $user, $role);
+            return back()->with('success', 'Contributor added successfully');
         } catch(\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
