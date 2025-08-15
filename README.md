@@ -73,8 +73,8 @@ This project is an internal company dashboard developed with Laravel. It functio
 
 > 🔧 **Permission Issues?** If you encounter permission problems when accessing the application, run these commands inside the container:
 > ```bash
-> sudo chown -R $USER:www-data storage bootstrap/cache
-> sudo chmod -R 775 storage bootstrap/cache
+> chown -R $USER:www-data storage bootstrap/cache
+> chmod -R 775 storage bootstrap/cache
 > ```
 
 ## ⚙️ Installation without Docker
