@@ -22,7 +22,6 @@ This project is an internal company dashboard developed with Laravel. It functio
 1. Copy the .env file and generate the application key
     ```bash
     cp .env.example .env
-    php artisan key:generate
     ```
 
 2. Configure your .env file
