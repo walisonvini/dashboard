@@ -1,0 +1,72 @@
+services:
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: dashboard-app
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+    ports:
+      - "9000:9000"
+    depends_on:
+      - mysql
+    networks:
+      - dashboard
+
+  web:
+    image: nginx:latest
+    container_name: dashboard-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - dashboard
+
+  node:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    container_name: dashboard-node
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/node_modules
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - app
+      - mysql
+    networks:
+      - dashboard
+
+  mysql:
+    image: mysql:8.0
+    container_name: dashboard-mysql
+    env_file:
+      - ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/scripts/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh
+    networks:
+      - dashboard
+
+networks:
+  dashboard:
+
+volumes:
+  db_data:
+  node_modules:
