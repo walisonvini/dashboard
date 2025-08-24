@@ -68,7 +68,7 @@ This project is an internal company dashboard developed with Laravel. It functio
 9. Access the application
     ```bash
     # Open your browser and navigate to:
-    http://localhost
+    http://localhost:8000
     ```
 
 > 🔧 **Permission Issues?** If you encounter permission problems when accessing the application, run these commands inside the container:

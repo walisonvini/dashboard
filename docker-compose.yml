@@ -8,12 +8,13 @@ services:
       - db
     networks:
       - dashboard
+      - proxy-net
 
   db:
     image: mysql:8.0
     container_name: dashboar_db
     env_file:
-      - ./.env
+      - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
@@ -26,6 +27,8 @@ services:
 
 networks:
   dashboard:
+  proxy-net:
+    external: true
 
 volumes:
   db_data:
