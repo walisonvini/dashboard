@@ -37,17 +37,17 @@ This project is an internal company dashboard developed with Laravel. It functio
 
 3. Build Docker images
     ```bash
-    docker-compose build
+    docker compose build
     ```
 
 4. Start containers
     ```bash
-    docker-compose up -d
+    docker compose up -d
     ```
 
 5. Access the application container
     ```bash
-    docker exec -it dashboard-app bash
+    docker exec -it dashboard_web bash
     ```
 
 6. Install PHP dependencies
