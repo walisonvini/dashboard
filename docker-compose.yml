@@ -8,6 +8,9 @@ services:
       - db
     env_file:
       - .env
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor
     networks:
       - dashboard
       - proxy-net
