@@ -6,6 +6,8 @@ services:
     container_name: dashboard_web
     depends_on:
       - db
+    env_file:
+      - .env
     networks:
       - dashboard
       - proxy-net
