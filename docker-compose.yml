@@ -10,7 +10,7 @@ services:
       - .env
     volumes:
       - .:/var/www/html
-      - /var/www/html/vendor
+       - ./vendor:/var/www/html/vendor
     networks:
       - dashboard
       - proxy-net
