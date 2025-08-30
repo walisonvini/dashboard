@@ -6,11 +6,9 @@ services:
     container_name: dashboard_web
     depends_on:
       - db
+    restart: always
     env_file:
       - .env
-    volumes:
-      - .:/var/www/html
-      - ./vendor:/var/www/html/vendor
     networks:
       - dashboard
       - proxy-net
@@ -27,6 +25,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
+    restart: always
     networks:
       - dashboard
 
