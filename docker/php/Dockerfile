@@ -18,9 +18,11 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-COPY --from=node-builder /app /var/www/html
+COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+COPY --from=node-builder /app/public/build /var/www/html/public/build
+
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 EXPOSE 9000
 CMD ["php-fpm"]
