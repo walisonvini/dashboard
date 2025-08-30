@@ -164,6 +164,7 @@ const unassignTicket = () => {
 
             <TicketUsersModal
                 v-model:isOpen="isAddUserModalOpen"
+                :ticket="ticket"
             />
         </CardContent>
     </Card>

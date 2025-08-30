@@ -19,5 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::post('tickets/{ticket}/assign', [TicketController::class, 'assign'])->name('tickets.assign')->middleware('permission:tickets.support');
     Route::post('tickets/{ticket}/unassign', [TicketController::class, 'unassign'])->name('tickets.unassign')->middleware('permission:tickets.support');
 
-    Route::post('tickets/{ticket}/users/{user}/add', [TicketController::class, 'addUser'])->name('tickets.users.add')->middleware('permission:tickets.support');
+    Route::get('tickets/{ticket}/available-users', [TicketController::class, 'showAvailableUsers'])->name('tickets.available-users')->middleware('permission:tickets.view');
+    Route::post('tickets/{ticket}/users/{user}', [TicketController::class, 'addUser'])->name('tickets.users.store')->middleware('permission:tickets.view');
+    Route::delete('tickets/{ticket}/users/{user}', [TicketController::class, 'removeUser'])->name('tickets.users.destroy')->middleware('permission:tickets.view');
 }); 

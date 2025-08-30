@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Ticket;
 use App\Models\TicketComment;
+use App\Models\User;
 
 use Illuminate\Support\Facades\DB;
 
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TicketService
 {
-    public function create(array $data, $user)
+    public function create(array $data, User $user)
     {
         return DB::transaction(function () use ($data, $user) {
             $ticket = Ticket::create([
@@ -48,7 +49,7 @@ class TicketService
         });
     }
 
-    public function getTicketsForUser($user): Collection
+    public function getTicketsForUser(User $user): Collection
     {
         if ($user->hasPermissionTo('tickets.support')) {
             return $this->getAllTickets();
@@ -64,7 +65,7 @@ class TicketService
                     ->get();
     }
 
-    public function getUserTickets($user): Collection
+    public function getUserTickets(User $user): Collection
     {
         return Ticket::with(['category', 'users'])
                     ->whereHas('users', function($query) use ($user) {
@@ -74,13 +75,7 @@ class TicketService
                     ->get();
     }
 
-    public function getTicketWithDetails($ticketId)
-    {
-        return Ticket::with(['category', 'attachments', 'comments.user', 'comments.attachments'])
-                    ->findOrFail($ticketId);
-    }
-
-    public function updateTicket($ticket, $data)
+    public function updateTicket(Ticket $ticket, $data)
     {
         if(!$ticket->isOpen() && !auth()->user()->hasPermissionTo('tickets.support')) {
             throw new \Exception('Ticket is not open and cannot be updated');
@@ -91,7 +86,7 @@ class TicketService
         return $ticket;
     }
 
-    public function assignTicket($ticket)
+    public function assignTicket(Ticket $ticket)
     {
         if($ticket->users()->where('role', '<>', 'assigned')->where('user_id', auth()->user()->id)->exists()) {
             throw new \Exception('You cannot provide support if you are the requester or already have another role in this ticket');
@@ -100,26 +95,60 @@ class TicketService
         $ticket->users()->attach(auth()->user()->id, ['role' => 'assigned']);
     }
 
-    public function unassignTicket($ticket)
+    public function unassignTicket(Ticket $ticket)
     {
         $ticket->users()->detach(auth()->user()->id);
     }
 
-    public function addUser($ticket, $user, $role)
+    public function canAccessTicket(Ticket $ticket): bool
     {
-        if($ticket->users()->where('user_id', $user->id)->exists()) {
-            throw new \Exception('User is already a ' . $role);
-        }
+        $user = auth()->user();
+        $isUserInTicket = $ticket->users->contains($user->id);
+        $hasSupportPermission = $user->hasPermissionTo('tickets.support');
         
-        $ticket->users()->attach($user->id, ['role' => $role]);
+        return $isUserInTicket || $hasSupportPermission;
     }
 
-    public function removeUser($ticket, $user)
+    public function showAvailableUsers(Ticket $ticket)
     {
-        if($ticket->users()->where('user_id', $user->id)->where('role', 'assigned')->exists()) {
-            throw new \Exception('You cannot remove the assigned user');
+        $users = User::permission('tickets.view')
+        ->whereDoesntHave('tickets', function ($query) use ($ticket) {
+            $query->where('tickets.id', $ticket->id);
+        })
+        ->get(['id', 'name', 'email']);
+
+        return $users;
+    }
+
+    public function addUser(Ticket $ticket, User $user, string $role = 'observer')
+    {
+        if ($ticket->users->contains($user->id)) {
+            throw new \Exception('User is already in this ticket.');
+        }
+
+        $ticket->users()->attach($user->id, ['role' => $role]);
+
+        $ticket->load('users');
+
+        return $ticket;
+    }
+
+    public function removeUser(Ticket $ticket, User $user)
+    {
+        if (!$ticket->users->contains($user->id)) {
+            throw new \Exception('User is not in this ticket.');
+        }
+
+        $userRole = $ticket->users()->where('user_id', $user->id)->first()->pivot->role;
+        
+        if (!in_array($userRole, ['observer', 'contributor'])) {
+            throw new \Exception('This user cannot be removed from the ticket.');
         }
 
         $ticket->users()->detach($user->id);
+
+        $ticket->load('users');
+
+        return $ticket;
     }
 }

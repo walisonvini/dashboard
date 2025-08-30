@@ -8,12 +8,14 @@ use App\Models\User;
 
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
 use App\Http\Requests\Tickets\StoreTicketRequest;
 use App\Http\Requests\Tickets\UpdateTicketRequest;
 
 use App\Services\TicketService;
+use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
@@ -48,8 +50,12 @@ class TicketController extends Controller
         return to_route('tickets.index')->with('success', 'Ticket created successfully');
     }
 
-    public function edit(Ticket $ticket): Response
+    public function edit(Ticket $ticket): Response|RedirectResponse
     {
+        if (!$this->ticketService->canAccessTicket($ticket)) {
+            return back()->with('error', 'You do not have permission to access this ticket.');
+        }
+
         $categories = TicketCategory::all();
 
         return Inertia::render('tickets/Edit', [
@@ -89,11 +95,38 @@ class TicketController extends Controller
         }
     }
 
-    public function addUser(Ticket $ticket, User $user, string $role): RedirectResponse
+    public function showAvailableUsers(Ticket $ticket): JsonResponse
     {
         try {
-            $this->ticketService->addUser($ticket, $user, $role);
-            return back()->with('success', 'Contributor added successfully');
+            $users = $this->ticketService->showAvailableUsers($ticket);
+
+            return response()->json([
+                'status' => 'success',
+                'users' => $users,
+            ]);
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function addUser(Request $request, Ticket $ticket, User $user)
+    {
+        try {
+            $this->ticketService->addUser($ticket, $user, $request->role);
+            return back()->with('success', 'User added to ticket successfully');
+        } catch(\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function removeUser(Ticket $ticket, User $user)
+    {
+        try {
+            $this->ticketService->removeUser($ticket, $user);
+            return back()->with('success', 'User removed from ticket successfully');
         } catch(\Exception $e) {
             return back()->with('error', $e->getMessage());
         }

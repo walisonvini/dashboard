@@ -119,7 +119,7 @@ const submit = () => {
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="description">Description</Label>
+                            <Label for="description">Description (Optional)</Label>
                             <textarea
                                 id="description"
                                 v-model="form.description"
@@ -171,7 +171,7 @@ const submit = () => {
                             <Button type="submit" :disabled="form.processing">
                                 {{ form.processing ? 'Creating...' : 'Create Ticket' }}
                             </Button>
-                            <Button type="button" variant="outline" @click="router.visit(route('tickets.my-tickets'))">
+                            <Button type="button" variant="outline" @click="router.visit(route('tickets.index'))">
                                 Cancel
                             </Button>
                         </div>
