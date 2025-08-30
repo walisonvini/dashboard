@@ -12,6 +12,8 @@ services:
     networks:
       - dashboard
       - proxy-net
+    volumes:
+      - dashboard_build:/var/www/html/public/build
 
   db:
     image: mysql:8.0
