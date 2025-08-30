@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-COPY . .
+COPY . /var/www/html
 
 COPY --from=node-builder /app/public/build /var/www/html/public/build
 
