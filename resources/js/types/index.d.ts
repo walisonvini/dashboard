@@ -37,4 +37,11 @@ export interface User {
     updated_at: string;
 }
 
+export interface authUser {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

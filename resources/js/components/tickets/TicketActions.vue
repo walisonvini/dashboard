@@ -4,20 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Ticket, TicketCategory } from '@/types/ticket';
+import type { authUser } from '@/types/index';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { useTicketFormatting } from '@/composables/useTicketFormatting';
+import { useTicketPermissions } from '@/composables/useTicketPermissions';
 import TicketUsersModal from '@/components/tickets/TicketUsersModal.vue';
 
 interface Props {
     ticket: Ticket;
     categories: TicketCategory[];
     isSupport: boolean;
+    authUser: authUser;
 }
 
 const props = defineProps<Props>();
 const page = usePage();
 const { formatStatus, formatPriority } = useTicketFormatting();
+const { canEdit, canAddUsers, canAssign, canUnassign } = useTicketPermissions(props.authUser);
 
 const form = useForm({
     priority: props.ticket.priority,
@@ -56,7 +60,7 @@ const unassignTicket = () => {
                 <Label>Status</Label>
                 <select 
                     v-model="form.status"
-                    :disabled="!isSupport"
+                    :disabled="!isSupport || !canEdit"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                     <option value="open">{{ formatStatus('open') }}</option>
@@ -74,7 +78,7 @@ const unassignTicket = () => {
                 <Label>Priority</Label>
                 <select 
                     v-model="form.priority"
-                    :disabled="!isTicketOpen && !isSupport"
+                    :disabled="(!isTicketOpen && !isSupport) || !canEdit"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                     <option value="low">{{ formatPriority('low') }}</option>
@@ -88,7 +92,7 @@ const unassignTicket = () => {
                 <Label>Category</Label>
                 <select 
                     v-model="form.category"
-                    :disabled="!isTicketOpen && !isSupport"
+                    :disabled="(!isTicketOpen && !isSupport) || !canEdit"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                     <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
@@ -99,7 +103,7 @@ const unassignTicket = () => {
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-2">
-                <Button @click="saveChanges" class="w-full" :disabled="!isTicketOpen && !isSupport">Save Changes</Button>
+                <Button @click="saveChanges" class="w-full" :disabled="(!isTicketOpen && !isSupport) || !canEdit">Save Changes</Button>
 
                 <Button 
                     v-if="isSupport && !ticket.users?.some(user => user.id === (page.props.auth as any).user.id && user.pivot.role === 'assigned')" 
@@ -124,6 +128,7 @@ const unassignTicket = () => {
                     variant="outline"
                     class="w-full"
                     @click="openAddUserModal"
+                    :disabled="!canAddUsers"
                 >
                     Ticket Users
                 </Button>

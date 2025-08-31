@@ -6,11 +6,22 @@ use App\Models\Ticket;
 use App\Http\Requests\TicketComments\StoreTicketCommentRequest;
 use Illuminate\Http\JsonResponse;
 
+use App\Services\TicketService;
+
 class TicketCommentController extends Controller
 {
+    public function __construct(
+        private TicketService $ticketService
+    ){} 
+
     public function store(StoreTicketCommentRequest $request, Ticket $ticket): JsonResponse  
     {
         try {
+            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
+            {
+                throw new \Exception('Observers cannot send comments.');
+            }
+
             if($ticket->isClosedOrCanceled()) {
                 throw new \Exception('Ticket is closed or canceled.');
             }

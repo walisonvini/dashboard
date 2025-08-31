@@ -53,21 +53,35 @@ class TicketController extends Controller
     public function edit(Ticket $ticket): Response|RedirectResponse
     {
         if (!$this->ticketService->canAccessTicket($ticket)) {
-            return back()->with('error', 'You do not have permission to access this ticket.');
+            return to_route('tickets.index')->with('error', 'You do not have permission to access this ticket.');
         }
 
         $categories = TicketCategory::all();
 
+        $authUser = auth()->user();
+        $userRole = $ticket->users()->where('user_id', $authUser->id)->first()?->pivot->role ?? null;
+
         return Inertia::render('tickets/Edit', [
             'ticket' => $ticket->load(['category', 'comments.user', 'attachments.uploader', 'users']),
             'categories' => $categories,
-            "isSupport" => auth()->user()->hasPermissionTo('tickets.support'),
+            'isSupport' => $authUser->hasPermissionTo('tickets.support'),
+            'authUser' => [
+                'id' => $authUser->id,
+                'name' => $authUser->name,
+                'email' => $authUser->email,
+                'role' => $userRole
+            ]
         ]);
     }
 
     public function update(UpdateTicketRequest $request, Ticket $ticket): RedirectResponse
     {
         try {
+            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
+            {
+                throw new \Exception('Observers cannot modify ticket information.');
+            }
+
             $this->ticketService->updateTicket($ticket, $request->validated());
             return back()->with('success', 'Ticket updated successfully');
         } catch(\Exception $e) {
@@ -115,6 +129,11 @@ class TicketController extends Controller
     public function addUser(Request $request, Ticket $ticket, User $user)
     {
         try {
+            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
+            {
+                throw new \Exception('Observers cannot manage ticket users.');
+            }
+
             $this->ticketService->addUser($ticket, $user, $request->role);
             return back()->with('success', 'User added to ticket successfully');
         } catch(\Exception $e) {
@@ -125,6 +144,11 @@ class TicketController extends Controller
     public function removeUser(Ticket $ticket, User $user)
     {
         try {
+            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
+            {
+                throw new \Exception('Observers cannot manage ticket users.');
+            }
+
             $this->ticketService->removeUser($ticket, $user);
             return back()->with('success', 'User removed from ticket successfully');
         } catch(\Exception $e) {

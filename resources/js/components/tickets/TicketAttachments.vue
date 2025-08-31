@@ -2,27 +2,37 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Paperclip } from 'lucide-vue-next';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Ticket, TicketAttachment } from '@/types/ticket';
+import type { authUser } from '@/types/index';
 import { ref, computed } from 'vue';
 import axios from 'axios';
 import { useToast } from '@/composables/useToast';
+import { useTicketPermissions } from '@/composables/useTicketPermissions';
+import { useTicketStatus } from '@/composables/useTicketStatus';
 
 interface Props {
     ticket: Ticket;
     attachments: TicketAttachment[];
+    authUser: authUser;
 }
 
 const props = defineProps<Props>();
 const fileInput = ref<HTMLInputElement>();
 const { error: showError } = useToast();
+const { canUploadFiles } = useTicketPermissions(props.authUser);
 const localAttachments = ref<TicketAttachment[]>([...props.attachments]);
 
 const triggerFileInput = () => {
     fileInput.value?.click();
 };
 
-const isTicketClosed = computed(() => props.ticket.status === 'closed');
-const isTicketCanceled = computed(() => props.ticket.status === 'canceled');
+const {isTicketClosed, isTicketCanceled} = useTicketStatus(props.ticket);
 
 const selectedFiles = ref<File[]>([]);
 
@@ -94,15 +104,24 @@ const downloadAttachment = (attachment: TicketAttachment) => {
             class="hidden"
             @change="handleFileSelection"
             accept="*/*"
-            :disabled="isTicketClosed || isTicketCanceled"
+            :disabled="isTicketClosed || isTicketCanceled || !canUploadFiles"
         />
         <CardHeader>
             <div class="flex items-center justify-between">
                 <CardTitle class="text-lg">Attachments</CardTitle>
-                <Button size="sm" variant="outline" @click="triggerFileInput">
-                    <Paperclip class="w-4 h-4 mr-2" />
-                    Add Files
-                </Button>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button size="sm" variant="outline" @click="triggerFileInput">
+                                <Paperclip class="w-4 h-4 mr-2" />
+                                Add Files
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent v-if="!canUploadFiles">
+                            <p>Observers cannot upload files</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
         </CardHeader>
         <CardContent class="flex-1 flex flex-col p-0 min-h-0 space-y-3">

@@ -126,8 +126,6 @@ const removeUser = (userId: number) => {
     }), {
         onSuccess: () => {
             if (props.ticket.users) {
-                const updatedUsers = props.ticket.users.filter(user => user.id !== userId);
-                props.ticket.users = updatedUsers;
                 emit('update:isOpen', false);
             }
         }

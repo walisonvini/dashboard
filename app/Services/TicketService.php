@@ -151,4 +151,10 @@ class TicketService
 
         return $ticket;
     }
+
+    public function canUserEditTicket(Ticket $ticket, User $user): bool
+    {
+        $userRole = $ticket->users()->where('user_id', $user->id)->first()?->pivot->role;
+        return !in_array($userRole, ['observer']);
+    }
 }

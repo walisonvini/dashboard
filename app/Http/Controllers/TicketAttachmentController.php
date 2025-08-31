@@ -4,17 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
+use App\Services\TicketService;
 use App\Services\TicketAttachmentService;
 use App\Http\Requests\TicketAttachment\StoreTicketAttachmentRequest;
 
 class TicketAttachmentController extends Controller
 {
-    private TicketAttachmentService $attachmentService;
-
-    public function __construct(TicketAttachmentService $attachmentService) 
-    {
-        $this->attachmentService = $attachmentService;
-    }
+    public function __construct(
+        private TicketAttachmentService $attachmentService,
+        private TicketService $ticketService
+    ) {}
 
     public function store(StoreTicketAttachmentRequest $request, Ticket $ticket)
     {
@@ -28,6 +27,11 @@ class TicketAttachmentController extends Controller
         }
 
         try {
+            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
+            {
+                throw new \Exception('Observers cannot upload files', 403);
+            }
+
             $attachments = $this->attachmentService->uploadFiles($ticket, $files);
 
             return response()->json([
