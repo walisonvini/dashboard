@@ -17,7 +17,7 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: dashboar_db
+    container_name: dashboard_db
     env_file:
       - .env
     environment:
