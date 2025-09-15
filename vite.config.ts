@@ -1,16 +1,11 @@
-import vue from '@vitejs/plugin-vue';
-import laravel from 'laravel-vite-plugin';
-import path from 'path';
-import tailwindcss from "@tailwindcss/vite";
-import { resolve } from 'node:path';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import laravel from 'laravel-vite-plugin'
+import path from 'path'
+import tailwindcss from '@tailwindcss/vite'
+import { resolve } from 'node:path'
 
-export default defineConfig({
-    server: {
-        hmr: {
-            host: 'localhost'
-        }
-    },
+export default defineConfig(({ command }) => ({
     plugins: [
         laravel({
             input: ['resources/js/app.ts'],
@@ -33,4 +28,7 @@ export default defineConfig({
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
-});
+    server: command === 'serve'
+        ? { hmr: { host: 'localhost' } }
+        : undefined,
+}))
