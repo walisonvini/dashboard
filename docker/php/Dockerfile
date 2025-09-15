@@ -13,8 +13,6 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 COPY . /var/www/html
 
-COPY --from=node-builder /app/public/build /var/www/html/public/build
-
 RUN composer install --optimize-autoloader --no-interaction --prefer-dist
 
 EXPOSE 9000
