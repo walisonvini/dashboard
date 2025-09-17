@@ -154,6 +154,10 @@ class TicketService
 
     public function canUserEditTicket(Ticket $ticket, User $user): bool
     {
+        if(!$ticket->users->contains($user->id)) {
+            throw new \Exception('User is not in this ticket.', 403);
+        }
+
         $userRole = $ticket->users()->where('user_id', $user->id)->first()?->pivot->role;
         return !in_array($userRole, ['observer']);
     }

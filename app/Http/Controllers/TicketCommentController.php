@@ -19,11 +19,11 @@ class TicketCommentController extends Controller
         try {
             if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
             {
-                throw new \Exception('Observers cannot send comments.');
+                throw new \Exception('Observers cannot send comments.', 403);
             }
 
             if($ticket->isClosedOrCanceled()) {
-                throw new \Exception('Ticket is closed or canceled.');
+                throw new \Exception('Ticket is closed or canceled.', 409);
             }
 
             $comment = $ticket->comments()->create([
@@ -40,7 +40,7 @@ class TicketCommentController extends Controller
                 'status' => 'error',
                 'message' => 'Could not send comment.',
                 'error' => $e->getMessage()
-            ], 500);
+            ], $e->getCode());
         }
     }
 }
