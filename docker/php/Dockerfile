@@ -10,7 +10,7 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 FROM php-base AS php-deps
 WORKDIR /app
-COPY composer.json composer.lock ./
+COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 FROM node:23-bullseye AS frontend-builder
