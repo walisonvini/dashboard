@@ -11,7 +11,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_23.x | bash - \
 
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-COPY . /var/www/html
+COPY . .
 
 RUN composer install --optimize-autoloader --no-interaction --prefer-dist
 

@@ -23,3 +23,6 @@ jobs:
             cd /root/projects/dashboard
             git pull origin main
             docker compose -f docker-compose.yml up -d --build
+            docker compose -f docker-compose.yml exec web npm run build
+            docker compose -f docker-compose.yml exec web php artisan migrate
+            docker compose -f docker-compose.yml exec web php artisan optimize

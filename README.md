@@ -19,7 +19,7 @@ This project is an internal company dashboard developed with Laravel. It functio
 
 ## 🐋 Installation with Docker
 
-1. Copy the .env file and generate the application key
+1. Copy environment file
     ```bash
     cp .env.example .env
     ```
@@ -27,45 +27,65 @@ This project is an internal company dashboard developed with Laravel. It functio
 2. Configure your .env file
     ```bash
     # Update the database credentials for Docker:
-    # DB_CONNECTION=mysql
-    # DB_HOST=mysql
-    # DB_PORT=3306
-    # DB_DATABASE=your_database_name
-    # DB_USERNAME=your_username
-    # DB_PASSWORD=your_password
+    DB_CONNECTION=mysql
+    DB_HOST=db
+    DB_PORT=3306
+    DB_DATABASE=your_database_name
+    DB_USERNAME=your_username
+    DB_PASSWORD=your_password
     ```
 
-3. Build Docker images
+3. Install PHP dependencies
+    ```bash
+    docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v $(pwd):/var/www/html \
+    -w /var/www/html \
+    laravelsail/php84-composer \
+    composer install
+    ```
+
+4. Install Node dependencies
+    ```bash
+    docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v $(pwd):/var/www/html \
+    -w /var/www/html \
+    node:23-bullseye \
+    npm install
+    ```
+
+5. Build Docker images
     ```bash
     docker compose build
     ```
 
-4. Start containers
+6. Start containers
     ```bash
     docker compose up -d
     ```
 
-5. Access the application container
+7. Access the application container
     ```bash
     docker exec -it dashboard_web bash
     ```
 
-6. Install PHP dependencies
+8. Generate application key
     ```bash
-    composer install
+    php artisan key:generate
     ```
 
-7. Run migrations
+9. Run database migrations
     ```bash
     php artisan migrate
     ```
 
-8. Seed the database
+10. Seed the database
     ```bash
     php artisan db:seed
     ```
 
-9. Access the application
+11. Access the application
     ```bash
     # Open your browser and navigate to:
     http://localhost:8000
@@ -84,7 +104,7 @@ This project is an internal company dashboard developed with Laravel. It functio
     composer install
     ```
 
-2. Install JavaScript dependencies
+2. Install Node dependencies
     ```bash
     npm install
     ```

@@ -4,28 +4,27 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile.dev
     container_name: dashboard_web
-    volumes:
-      - .:/var/www/html
-      - node_modules:/var/www/html/node_modules
+    working_dir: /var/www/html
     ports:
       - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    command: php artisan serve --host=0.0.0.0 --port=8000
     depends_on:
       - db
     networks:
       - dashboard
-    command: php artisan serve --host=0.0.0.0 --port=8000
 
   node:
     build:
       context: .
-      dockerfile: docker/node/Dockerfile
+      dockerfile: docker/node/Dockerfile.dev
     container_name: dashboard_node
     working_dir: /var/www/html
-    volumes:
-      - .:/var/www/html
-      - node_modules:/var/www/html/node_modules
     ports:
       - "5173:5173"
+    volumes:
+      - .:/var/www/html
     command: npm run dev -- --host 0.0.0.0
     depends_on:
       - web
@@ -57,4 +56,3 @@ networks:
 
 volumes:
   db_data:
-  node_modules:
