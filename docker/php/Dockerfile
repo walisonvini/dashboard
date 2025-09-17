@@ -1,4 +1,4 @@
-FROM php:8.4-cli AS php-base
+FROM php:8.4-fpm AS php-base
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
