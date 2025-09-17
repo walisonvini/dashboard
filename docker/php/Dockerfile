@@ -1,12 +1,5 @@
-FROM node:23-bullseye as frontend-builder
+FROM php:8.4-cli AS php-base
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-FROM php:8.4-fpm
-WORKDIR /var/www/html
 
 RUN apt-get update && apt-get install -y \
     git unzip curl libpng-dev libonig-dev libxml2-dev zip libzip-dev \
@@ -15,11 +8,25 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-COPY --from=frontend-builder /app/public/build /var/www/html/public/build
+FROM php-base AS php-deps
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader
 
+FROM node:23-bullseye AS frontend-builder
+WORKDIR /app
+COPY --from=php-deps /app/vendor /app/vendor
+COPY package*.json ./
+RUN npm ci
 COPY . .
+RUN npm run build
 
-RUN composer install --optimize-autoloader --no-dev --no-interaction --prefer-dist
+FROM php-base AS final
+WORKDIR /var/www/html
+
+COPY --from=frontend-builder /app/public/build /var/www/html/public/build
+COPY . .
+COPY --from=php-deps /app/vendor /var/www/html/vendor
 
 EXPOSE 9000
 CMD ["php-fpm"]
