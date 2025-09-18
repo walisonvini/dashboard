@@ -29,7 +29,7 @@ class UpdateTicketRequest extends FormRequest
     {
         return [
             'priority' => ['required', new Enum(TicketPriority::class)],
-            'category' => ['required', 'integer', new Exists('ticket_categories', 'id')],
+            'category_id' => ['required', 'integer', new Exists('ticket_categories', 'id')],
             'status' => ['required', new Enum(TicketStatus::class)],
         ];
     }
