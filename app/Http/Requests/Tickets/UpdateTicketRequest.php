@@ -3,6 +3,12 @@
 namespace App\Http\Requests\Tickets;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Exists;
+use Illuminate\Validation\Rules\Enum;
+
+
+use App\Enums\TicketStatus\TicketPriority;
+use App\Enums\TicketStatus\TicketStatus;
 
 class UpdateTicketRequest extends FormRequest
 {
@@ -22,9 +28,9 @@ class UpdateTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'priority' => ['required', 'string', 'in:low,medium,high'],
-            'category' => ['required', 'integer', 'exists:ticket_categories,id'],
-            'status' => ['required', 'string', 'in:open,in_progress,waiting_user,waiting_third_party,resolved,closed,canceled'],
+            'priority' => ['required', new Enum(TicketPriority::class)],
+            'category' => ['required', 'integer', new Exists('ticket_categories', 'id')],
+            'status' => ['required', new Enum(TicketStatus::class)],
         ];
     }
 }

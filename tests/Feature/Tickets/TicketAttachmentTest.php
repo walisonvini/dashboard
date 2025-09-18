@@ -33,6 +33,8 @@ class TicketAttachmentTest extends TestCase
     {
         $ticket = Ticket::factory()->create(['status' => TicketStatus::Open]);
 
+        $ticket->users()->attach(auth()->user()->id, ['role' => 'requester']);
+
         $response = $this->post("/tickets/{$ticket->id}/attachments", [
             'files' => [UploadedFile::fake()->image('test.jpg')],
         ]);
@@ -55,6 +57,8 @@ class TicketAttachmentTest extends TestCase
     {
         $ticket = Ticket::factory()->create(['status' => TicketStatus::Open]);
 
+        $ticket->users()->attach(auth()->user()->id, ['role' => 'requester']);
+
         $response = $this->post("/tickets/{$ticket->id}/attachments", [
             'files' => [UploadedFile::fake()->image('test.jpg')],
         ]);
@@ -71,6 +75,8 @@ class TicketAttachmentTest extends TestCase
     {
         $ticket = Ticket::factory()->create(['status' => TicketStatus::Closed]);
 
+        $ticket->users()->attach(auth()->user()->id, ['role' => 'requester']);
+
         $response = $this->post("/tickets/{$ticket->id}/attachments", [
             'files' => [UploadedFile::fake()->image('test.jpg')],
         ]);
@@ -82,6 +88,8 @@ class TicketAttachmentTest extends TestCase
         ]);
 
         $ticket = Ticket::factory()->create(['status' => TicketStatus::Canceled]);
+
+        $ticket->users()->attach(auth()->user()->id, ['role' => 'requester']);
 
         $response = $this->post("/tickets/{$ticket->id}/attachments", [
             'files' => [UploadedFile::fake()->image('test.jpg')],

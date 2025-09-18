@@ -4,6 +4,9 @@ namespace App\Http\Requests\Tickets;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Exists;
+use Illuminate\Validation\Rules\Enum;
+
+use App\Enums\TicketStatus\TicketPriority;
 
 class StoreTicketRequest extends FormRequest
 {
@@ -26,7 +29,7 @@ class StoreTicketRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'category_id' => ['required', new Exists('ticket_categories', 'id')],
-            'priority' => ['nullable', 'in:low,medium,high'],
+            'priority' => ['nullable', new Enum(TicketPriority::class)],
             'initial_comment' => ['nullable', 'string'],
             'attachments' => ['nullable', 'array', 'max:5'],
             'attachments.*' => ['file', 'max:10240']
