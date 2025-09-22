@@ -25,7 +25,7 @@ const { canEdit, canAddUsers, canAssign, canUnassign } = useTicketPermissions(pr
 
 const form = useForm({
     priority: props.ticket.priority,
-    category: props.ticket.category.id,
+    category_id: props.ticket.category.id,
     status: props.ticket.status,
 });
 
@@ -91,7 +91,7 @@ const unassignTicket = () => {
             <div class="space-y-2">
                 <Label>Category</Label>
                 <select 
-                    v-model="form.category"
+                    v-model="form.category_id"
                     :disabled="(!isTicketOpen && !isSupport) || !canEdit"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >

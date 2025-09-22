@@ -6,6 +6,7 @@ export interface TicketCategory {
     description: string;
     created_at: string;
     updated_at: string;
+    is_active: boolean;
 }
 
 export interface Ticket {

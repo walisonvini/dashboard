@@ -24,5 +24,11 @@ Route::middleware('auth')->group(function () {
     Route::post('tickets/{ticket}/users/{user}', [TicketController::class, 'addUser'])->name('tickets.users.store')->middleware('permission:tickets.view');
     Route::delete('tickets/{ticket}/users/{user}', [TicketController::class, 'removeUser'])->name('tickets.users.destroy')->middleware('permission:tickets.view');
 
-    Route::get('ticket-categories', [TicketCategoryController::class, 'index'])->name('tickets.categories.index')->middleware('permission:tickets.create');
+    Route::get('ticket-categories', [TicketCategoryController::class, 'index'])->name('ticket-categories.index')->middleware('permission:ticket-categories.view');
+    Route::post('ticket-categories', [TicketCategoryController::class, 'store'])->name('ticket-categories.store')->middleware('permission:ticket-categories.create');
+    Route::put('ticket-categories/{category}', [TicketCategoryController::class, 'update'])->name('ticket-categories.update')->middleware('permission:ticket-categories.edit');
+    Route::put('ticket-categories/{category}/deactivate', [TicketCategoryController::class, 'deactivate'])->name('ticket-categories.deactivate')->middleware('permission:ticket-categories.edit');
+    Route::put('ticket-categories/{category}/reactivate', [TicketCategoryController::class, 'reactivate'])->name('ticket-categories.reactivate')->middleware('permission:ticket-categories.edit');
+    Route::delete('ticket-categories/{category}', [TicketCategoryController::class, 'destroy'])->name('ticket-categories.destroy')->middleware('permission:ticket-categories.edit');
+    Route::get('ticket-categories/deactivated', [TicketCategoryController::class, 'deactivated'])->name('ticket-categories.deactivated')->middleware('permission:ticket-categories.view');
 }); 

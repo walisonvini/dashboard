@@ -37,7 +37,7 @@ class TicketController extends Controller
 
     public function create(): Response
     {
-        $categories = TicketCategory::all();
+        $categories = TicketCategory::where('is_active', true)->get();
         return Inertia::render('tickets/Create', [
             'categories' => $categories,
         ]);
@@ -56,7 +56,7 @@ class TicketController extends Controller
             return to_route('tickets.index')->with('error', 'You do not have permission to access this ticket.');
         }
 
-        $categories = TicketCategory::all();
+        $categories = TicketCategory::where('is_active', true)->get();
 
         $authUser = auth()->user();
         $userRole = $ticket->users()->where('user_id', $authUser->id)->first()?->pivot->role ?? null;

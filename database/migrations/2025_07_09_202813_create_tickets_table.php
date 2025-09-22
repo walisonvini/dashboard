@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->enum('status', array_column(TicketStatus::cases(), 'value'))->default(TicketStatus::Open->value);
             $table->enum('priority', array_column(TicketPriority::cases(), 'value'))->default(TicketPriority::Low->value);
-            $table->foreignId('category_id')->nullable()->constrained('ticket_categories')->nullOnDelete();
+            $table->foreignId('category_id')->nullable()->constrained('ticket_categories');
             $table->timestamps();
         });
     }

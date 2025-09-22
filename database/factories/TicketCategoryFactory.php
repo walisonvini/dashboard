@@ -19,6 +19,7 @@ class TicketCategoryFactory extends Factory
         return [
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
+            'is_active' => $this->faker->boolean,
             'created_at' => now(),
             'updated_at' => now(),
         ];
