@@ -3,8 +3,7 @@
 namespace App\Http\Requests\Tickets;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Exists;
-use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rule;
 
 use App\Enums\TicketStatus\TicketPriority;
 
@@ -28,8 +27,8 @@ class StoreTicketRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'category_id' => ['required', new Exists('ticket_categories', 'id')],
-            'priority' => ['nullable', new Enum(TicketPriority::class)],
+            'category_id' => ['required', Rule::exists('ticket_categories', 'id')],
+            'priority' => ['nullable', Rule::enum(TicketPriority::class)],
             'initial_comment' => ['nullable', 'string'],
             'attachments' => ['nullable', 'array', 'max:5'],
             'attachments.*' => ['file', 'max:10240']

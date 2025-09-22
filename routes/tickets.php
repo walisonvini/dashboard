@@ -3,6 +3,7 @@
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketCommentController;
 use App\Http\Controllers\TicketAttachmentController;
+use App\Http\Controllers\TicketCategoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -22,4 +23,6 @@ Route::middleware('auth')->group(function () {
     Route::get('tickets/{ticket}/available-users', [TicketController::class, 'showAvailableUsers'])->name('tickets.available-users')->middleware('permission:tickets.view');
     Route::post('tickets/{ticket}/users/{user}', [TicketController::class, 'addUser'])->name('tickets.users.store')->middleware('permission:tickets.view');
     Route::delete('tickets/{ticket}/users/{user}', [TicketController::class, 'removeUser'])->name('tickets.users.destroy')->middleware('permission:tickets.view');
+
+    Route::get('ticket-categories', [TicketCategoryController::class, 'index'])->name('tickets.categories.index')->middleware('permission:tickets.create');
 }); 

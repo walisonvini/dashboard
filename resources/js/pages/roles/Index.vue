@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-vue-next';
+import { Edit, Trash2 } from 'lucide-vue-next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ref } from 'vue';
 import CreateRoleModal from '@/components/roles/CreateRoleModal.vue';
@@ -76,7 +76,7 @@ const openDeleteModal = (role: Role) => {
                                         size="icon"
                                         @click="openEditModal(role)"
                                     >
-                                        <Pencil class="h-4 w-4" />
+                                        <Edit class="h-4 w-4" />
                                     </Button>
                                     <Button
                                         variant="ghost"
