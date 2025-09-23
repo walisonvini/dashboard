@@ -13,7 +13,7 @@ interface Role {
     name: string;
 }
 
-const props = defineProps<{
+defineProps<{
     roles: Role[]
 }>();
 

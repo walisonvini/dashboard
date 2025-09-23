@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 use Spatie\Permission\Models\Role;
 
@@ -23,11 +24,17 @@ class RoleController extends Controller
         $this->roleService = $roleService;
     }
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $roles = Role::all();
+        $roles = $this->roleService->getPaginatedRoles($request);
+        
         return Inertia::render('roles/Index', [
-            'roles' => $roles
+            'roles' => $roles->items(),
+            'pagination' => [
+                'current_page' => $roles->currentPage(),
+                'per_page' => $roles->perPage(),
+                'total' => $roles->total(),
+            ]
         ]);
     }
 

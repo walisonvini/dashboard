@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-vue-next';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ref } from 'vue';
 import CreateRoleModal from '@/components/roles/CreateRoleModal.vue';
 import EditRoleModal from '@/components/roles/EditRoleModal.vue';
 import DeleteRoleModal from '@/components/roles/DeleteRoleModal.vue';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Roles',
-        href: '/roles',
-    },
-];
+import { type BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/vue3';
+import { Button } from '@/components/ui/button';
+import { Edit, Trash2 } from 'lucide-vue-next';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { ref } from 'vue';
+import Pagination from '@/components/ui/pagination/Pagination.vue';
+import { PaginationData } from '@/types';
+import { useTableWithPagination } from '@/composables/useTableWithPagination';
+import { Search } from 'lucide-vue-next';
 
 interface Role {
     id: number;
@@ -24,9 +22,27 @@ interface Role {
     updated_at: string;
 }
 
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Roles',
+        href: '/roles',
+    },
+];
+
 const props = defineProps<{
-    roles: Role[]
+    roles: Role[];
+    pagination: PaginationData;
 }>();
+
+const {
+    currentPage,
+    totalItems,
+    itemsPerPage,
+    siblingCount,
+    handlePageChange,
+    searchQuery,
+    handleSearch
+} = useTableWithPagination(props, 'roles.index');
 
 const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
@@ -52,6 +68,27 @@ const openDeleteModal = (role: Role) => {
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold">Roles</h1>
                 <CreateRoleModal v-model:isOpen="isCreateModalOpen" />
+            </div>
+
+            <!-- Search Input -->
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1 max-w-sm">
+                    <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        v-model="searchQuery"
+                        placeholder="Search by role name..."
+                        class="pl-10"
+                        @keydown.enter="handleSearch"
+                    />
+                </div>
+                <Button 
+                    @click="handleSearch"
+                    size="sm"
+                    variant="outline"
+                    class="h-9 px-3"
+                >
+                    <Search class="h-4 w-4" />
+                </Button>
             </div>
 
             <div class="rounded-md border">
@@ -90,6 +127,18 @@ const openDeleteModal = (role: Role) => {
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center mt-6">
+                <Pagination
+                    v-model:current-page="currentPage"
+                    :total-items="totalItems"
+                    :items-per-page="itemsPerPage"
+                    :show-edges="true"
+                    :sibling-count="siblingCount"
+                    @update:current-page="handlePageChange"
+                />
             </div>
         </div>
 

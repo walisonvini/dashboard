@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-vue-next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { PaginationData, User } from '@/types';
 import { Search } from 'lucide-vue-next';
+import { useTableWithPagination } from '@/composables/useTableWithPagination';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -24,37 +25,15 @@ const props = defineProps<{
     pagination: PaginationData;
 }>();
 
-const currentPage = ref(props.pagination.current_page);
-const totalItems = props.pagination.total;
-const itemsPerPage = props.pagination.per_page;
-const siblingCount = ref(1);
-
-const searchQuery = ref('');
-
-onMounted(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    searchQuery.value = urlParams.get('search') || '';
-});
-
-const handleSearch = () => {
-    router.get(route('users.index'), { 
-        page: 1,
-        search: searchQuery.value 
-    }, {
-        preserveState: false,
-        preserveScroll: true,
-    });
-};
-
-const handlePageChange = (page: number) => {
-    router.get(route('users.index'), { 
-        page,
-        search: searchQuery.value
-    }, {
-        preserveState: true,
-        preserveScroll: true,
-    });
-};
+const {
+    currentPage,
+    totalItems,
+    itemsPerPage,
+    siblingCount,
+    handlePageChange,
+    searchQuery,
+    handleSearch
+} = useTableWithPagination(props, 'users.index');
 
 const isDeleteModalOpen = ref(false);
 const selectedUser = ref<User | null>(null);
