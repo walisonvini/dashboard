@@ -7,6 +7,7 @@ use App\Http\Requests\TicketCategories\StoreTicketCategoryRequest;
 use App\Http\Requests\TicketCategories\UpdateTicketCategoryRequest;
 
 use App\Models\TicketCategory;
+use App\Services\TicketCategoryService;
 
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,11 +17,24 @@ use Illuminate\Database\QueryException;
 
 class TicketCategoryController extends Controller
 {
+    protected $ticketCategoryService;
+
+    public function __construct(TicketCategoryService $ticketCategoryService)
+    {
+        $this->ticketCategoryService = $ticketCategoryService;
+    }
+
     public function index(Request $request): Response
     {
-        $categories = TicketCategory::where('is_active', true)->get();
+        $categories = $this->ticketCategoryService->getPaginatedActiveCategories($request);
+        
         return Inertia::render('tickets/categories/Index', [
-            'categories' => $categories,
+            'categories' => $categories->items(),
+            'pagination' => [
+                'current_page' => $categories->currentPage(),
+                'per_page' => $categories->perPage(),
+                'total' => $categories->total(),
+            ]
         ]);
     }
 
@@ -49,11 +63,17 @@ class TicketCategoryController extends Controller
         }
     }
 
-    public function deactivated(): Response
+    public function deactivated(Request $request): Response
     {
-        $categories = TicketCategory::where('is_active', false)->get();
+        $categories = $this->ticketCategoryService->getPaginatedDeactivatedCategories($request);
+        
         return Inertia::render('tickets/categories/Deactivated', [
-            'categories' => $categories,
+            'categories' => $categories->items(),
+            'pagination' => [
+                'current_page' => $categories->currentPage(),
+                'per_page' => $categories->perPage(),
+                'total' => $categories->total(),
+            ]
         ]);
     }
 

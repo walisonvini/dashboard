@@ -6,15 +6,31 @@ import { Head, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, Eye } from 'lucide-vue-next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 import { type TicketCategory } from '@/types/ticket';
 import CreateCategoryModal from '@/components/ticket-categories/CreateCategoryModal.vue';
 import EditCategoryModal from '@/components/ticket-categories/EditCategoryModal.vue';
 import ShowCategoryModal from '@/components/ticket-categories/ShowCategoryModal.vue';
 import DeleteOrDeactivateCategoryModal from '@/components/ticket-categories/DeleteOrDeactivateCategoryModal.vue';
+import Pagination from '@/components/ui/pagination/Pagination.vue';
+import { PaginationData } from '@/types';
+import { useTableWithPagination } from '@/composables/useTableWithPagination';
+import { Search } from 'lucide-vue-next';
 
-defineProps<{
-    categories: TicketCategory[]
+const props = defineProps<{
+    categories: TicketCategory[];
+    pagination: PaginationData;
 }>();
+
+const {
+    currentPage,
+    totalItems,
+    itemsPerPage,
+    siblingCount,
+    handlePageChange,
+    searchQuery,
+    handleSearch
+} = useTableWithPagination(props, 'ticket-categories.index');
 
 const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
@@ -67,6 +83,26 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
             </div>
 
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1 max-w-sm">
+                    <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        v-model="searchQuery"
+                        placeholder="Search by name or description..."
+                        class="pl-10"
+                        @keydown.enter="handleSearch"
+                    />
+                </div>
+                <Button 
+                    @click="handleSearch"
+                    size="sm"
+                    variant="outline"
+                    class="h-9 px-3"
+                >
+                    <Search class="h-4 w-4" />
+                </Button>
+            </div>
+
             <div class="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -104,6 +140,18 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center mt-6">
+                <Pagination
+                    v-model:current-page="currentPage"
+                    :total-items="totalItems"
+                    :items-per-page="itemsPerPage"
+                    :show-edges="true"
+                    :sibling-count="siblingCount"
+                    @update:current-page="handlePageChange"
+                />
             </div>
         </div>
 

@@ -2,47 +2,36 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use App\Models\TicketCategory;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class UserService
+class TicketCategoryService
 {
-    public function veryIfUserIsModifiable(User $user): bool
+    public function getPaginatedActiveCategories(Request $request): LengthAwarePaginator
     {
-        $usersCanNotBeModified = ['super'];
-
-        if (in_array($user->name, $usersCanNotBeModified)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function getPaginatedUsers(Request $request): LengthAwarePaginator
-    {
-        $query = User::query();
+        $query = TicketCategory::where('is_active', true);
         
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
             $query->where(function($q) use ($searchTerm) {
                 $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('email', 'like', '%' . $searchTerm . '%');
+                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
             });
         }
         
         return $query->paginate(10);
     }
 
-    public function getPaginatedTrashedUsers(Request $request): LengthAwarePaginator
+    public function getPaginatedDeactivatedCategories(Request $request): LengthAwarePaginator
     {
-        $query = User::onlyTrashed();
+        $query = TicketCategory::where('is_active', false);
         
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
             $query->where(function($q) use ($searchTerm) {
                 $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('email', 'like', '%' . $searchTerm . '%');
+                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
             });
         }
         

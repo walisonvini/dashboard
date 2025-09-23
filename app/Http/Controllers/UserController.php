@@ -114,11 +114,17 @@ class UserController extends Controller
         return to_route('users.index')->with('success', 'User deleted successfully');
     }
 
-    public function trashed(): Response
+    public function trashed(Request $request): Response
     {
-        $users = User::onlyTrashed()->get();
+        $users = $this->userService->getPaginatedTrashedUsers($request);
+        
         return Inertia::render('users/Trashed', [
-            'users' => $users
+            'users' => $users->items(),
+            'pagination' => [
+                'current_page' => $users->currentPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+            ]
         ]);
     }
 

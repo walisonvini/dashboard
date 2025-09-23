@@ -45,7 +45,7 @@ const submit = () => {
                 <DialogDescription>
                     Are you sure you want to delete the role "{{ role?.name }}"? This action cannot be undone.
                     <br><br>
-                    <span class="text-yellow-600 font-medium">Warning:</span> If any users are currently assigned to this role, they will be automatically assigned to the default "user" role.
+                    <span class="text-yellow-600 font-medium">Warning:</span> If any users are currently assigned to this role, they will be automatically assigned to the default "default" role.
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter>
