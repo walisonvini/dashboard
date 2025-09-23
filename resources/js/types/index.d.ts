@@ -44,4 +44,10 @@ export interface authUser {
     role: string;
 }
 
+export interface PaginationData {
+    current_page: number;
+    per_page: number;
+    total: number;
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

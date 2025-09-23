@@ -31,7 +31,7 @@ interface TicketCategory {
     updated_at: string;
 }
 
-const props = defineProps<{
+defineProps<{
     categories: TicketCategory[]
 }>();
 

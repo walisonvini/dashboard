@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 use App\Models\User;
 use Spatie\Permission\Models\Role;
@@ -26,11 +27,17 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $users = User::all();
+        $users = $this->userService->getPaginatedUsers($request);
+        
         return Inertia::render('users/Index', [
-            'users' => $users
+            'users' => $users->items(),
+            'pagination' => [
+                'current_page' => $users->currentPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+            ]
         ]);
     }
 
