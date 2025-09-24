@@ -21,7 +21,7 @@ class TicketCommentFactory extends Factory
     {
         return [
            'ticket_id' => Ticket::factory(),
-            'user_id' => User::factory(),
+            'user_id' => User::inRandomOrder()->first()->id ?? User::factory(),
             'comment' => $this->faker->paragraph,
             'created_at' => now(),
             'updated_at' => now(), 

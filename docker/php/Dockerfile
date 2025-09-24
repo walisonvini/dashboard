@@ -31,6 +31,8 @@ COPY --from=php-deps /app/vendor /var/www/html/vendor
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+USER www-data
+
 RUN php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache

@@ -16,34 +16,20 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'super',
-            'email' => 'super@example.com',
-            'password' => Hash::make('password'),
-        ]);
-        
-        User::factory()->create([
-            'name' => 'admin',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'),
-        ]);
+        $users = [
+            ['name' => 'super', 'email' => 'super@example.com'],
+            ['name' => 'admin', 'email' => 'admin@example.com'],
+            ['name' => 'employee', 'email' => 'employee@example.com'],
+            ['name' => 'default', 'email' => 'default@example.com'],
+            ['name' => 'support', 'email' => 'support@example.com'],
+        ];
 
-        User::factory()->create([
-            'name' => 'employee',
-            'email' => 'employee@example.com',
-            'password' => Hash::make('password'),
-        ]);
-
-        User::factory()->create([
-            'name' => 'default',
-            'email' => 'default@example.com',
-            'password' => Hash::make('password'),
-        ]);
-
-        User::factory()->create([
-            'name' => 'support',
-            'email' => 'support@example.com',
-            'password' => Hash::make('password'),
-        ]);
+        foreach ($users as $user) {
+            User::factory()->create([
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'password' => Hash::make('password'),
+            ]);
+        }
     }
 }
