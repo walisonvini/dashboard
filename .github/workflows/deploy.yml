@@ -25,4 +25,3 @@ jobs:
             docker compose -f docker-compose.yml build
             docker compose -f docker-compose.yml up -d
             docker exec dashboard_web php artisan migrate --force
-            docker exec dashboard_web php artisan optimize
