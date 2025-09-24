@@ -24,8 +24,8 @@ RUN npm run build
 FROM php-base AS final
 WORKDIR /var/www/html
 
-COPY --from=frontend-builder /app/public/build /var/www/html/public/build
 COPY . .
+COPY --from=frontend-builder /app/public/build /var/www/html/public/build
 COPY --from=php-deps /app/vendor /var/www/html/vendor
 
 EXPOSE 9000

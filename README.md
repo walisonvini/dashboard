@@ -2,7 +2,7 @@
 
 ## Description
 
-This project is an internal company dashboard developed with Laravel. It functions as an intranet platform, providing a centralized space for managing internal operations and communication within a company.
+This project is an internal company dashboard developed with Laravel, Vue.js and Inertia.js. It functions as an intranet platform, providing a centralized space for managing internal operations and communication within a company.
 
 ## 💻 Prerequisites
 
