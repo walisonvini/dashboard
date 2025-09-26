@@ -19,7 +19,7 @@ COPY --from=php-deps /app/vendor /app/vendor
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build -- --output-path=/tmp/build
+RUN npm run build
 
 FROM php-base AS final
 WORKDIR /var/www/html

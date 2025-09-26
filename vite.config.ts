@@ -22,6 +22,9 @@ export default defineConfig(({ command }) => ({
             },
         }),
     ],
+    build: {
+        outDir: '/tmp/build',
+    },
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './resources/js'),
