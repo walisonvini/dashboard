@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-vue-next';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -12,6 +12,7 @@ import Pagination from '@/components/ui/pagination/Pagination.vue';
 import { PaginationData } from '@/types';
 import { useTableWithPagination } from '@/composables/useTableWithPagination';
 import { Search } from 'lucide-vue-next';
+import { type TicketCategory } from '@/types/ticket';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,14 +28,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/ticket-categories/deactivated'
     }
 ];
-
-interface TicketCategory {
-    id: number;
-    name: string;
-    description: string;
-    created_at: string;
-    updated_at: string;
-}
 
 const props = defineProps<{
     categories: TicketCategory[];

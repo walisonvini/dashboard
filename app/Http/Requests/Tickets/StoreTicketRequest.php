@@ -25,7 +25,7 @@ class StoreTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string'],
             'category_id' => ['required', Rule::exists('ticket_categories', 'id')],
             'priority' => ['nullable', Rule::enum(TicketPriority::class)],

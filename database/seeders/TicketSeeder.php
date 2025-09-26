@@ -15,13 +15,7 @@ class TicketSeeder extends Seeder
      */
     public function run(): void
     {
-        $categories = TicketCategory::all();
-
-        foreach ($categories as $category) {
-            Ticket::factory()->create([
-                'category_id' => $category->id,
-            ]);
-        }
+        Ticket::factory()->count(50)->create();
 
         $tickets = Ticket::all();
 

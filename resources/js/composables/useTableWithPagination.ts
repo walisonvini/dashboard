@@ -1,6 +1,7 @@
 import { usePagination } from './usePagination';
 import { useSearch } from './useSearch';
 import { PaginationData } from '@/types';
+import { router } from '@inertiajs/vue3';
 
 interface SearchConfig {
     searchField?: string;
@@ -17,7 +18,18 @@ export function useTableWithPagination(
 
     const handlePageChange = (page: number) => {
         const searchParam = search.searchQuery.value;
-        pagination.handlePageChange(page, searchParam);
+        const allFilters = {
+            search: searchParam,
+            ...search.filters
+        };
+        
+        router.get(route(routeName), { 
+            page,
+            ...allFilters
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
     return {

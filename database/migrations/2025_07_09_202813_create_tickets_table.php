@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('code', 50)->unique();
+            $table->string('title', 150);
             $table->text('description')->nullable();
             $table->enum('status', array_column(TicketStatus::cases(), 'value'))->default(TicketStatus::Open->value);
             $table->enum('priority', array_column(TicketPriority::cases(), 'value'))->default(TicketPriority::Low->value);

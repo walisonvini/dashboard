@@ -26,12 +26,21 @@ class TicketController extends Controller
         $this->ticketService = $ticketService;
     }
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $tickets = $this->ticketService->getTicketsForUser(auth()->user());
+        $tickets = $this->ticketService->getPaginatedTicketsForUser(auth()->user(), $request);
+        $categories = TicketCategory::where('is_active', true)->get();
+        $authUser = auth()->user();
 
         return Inertia::render('tickets/Index', [
-            'tickets' => $tickets,
+            'tickets' => $tickets->items(),
+            'categories' => $categories,
+            'isSupport' => $authUser->hasPermissionTo('tickets.support'),
+            'pagination' => [
+                'current_page' => $tickets->currentPage(),
+                'per_page' => $tickets->perPage(),
+                'total' => $tickets->total(),
+            ]
         ]);
     }
 

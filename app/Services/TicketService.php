@@ -8,7 +8,9 @@ use App\Models\User;
 
 use Illuminate\Support\Facades\DB;
 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TicketService
 {
@@ -16,6 +18,7 @@ class TicketService
     {
         return DB::transaction(function () use ($data, $user) {
             $ticket = Ticket::create([
+                'code' => 'TCK-' . strtoupper(Str::random(6)),
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
                 'category_id' => $data['category_id'] ?? null,
@@ -47,32 +50,6 @@ class TicketService
 
             return $ticket;
         });
-    }
-
-    public function getTicketsForUser(User $user): Collection
-    {
-        if ($user->hasPermissionTo('tickets.support')) {
-            return $this->getAllTickets();
-        }
-
-        return $this->getUserTickets($user);
-    }
-
-    public function getAllTickets(): Collection
-    {
-        return Ticket::with(['category', 'users'])
-                    ->latest()
-                    ->get();
-    }
-
-    public function getUserTickets(User $user): Collection
-    {
-        return Ticket::with(['category', 'users'])
-                    ->whereHas('users', function($query) use ($user) {
-                        $query->where('user_id', $user->id);
-                    })
-                    ->latest()
-                    ->get();
     }
 
     public function updateTicket(Ticket $ticket, $data)
@@ -160,5 +137,71 @@ class TicketService
 
         $userRole = $ticket->users()->where('user_id', $user->id)->first()?->pivot->role;
         return !in_array($userRole, ['observer']);
+    }
+
+    public function getPaginatedTicketsForUser(User $user, Request $request): LengthAwarePaginator
+    {
+        $query = Ticket::with(['category', 'users']);
+
+        $this->applyUserPermissions($query, $user);
+        
+        $this->applyFilters($query, $request, $user);
+
+        return $query->paginate(10);
+    }
+
+    private function applyUserPermissions($query, User $user): void
+    {
+        if ($user->hasPermissionTo('tickets.support')) {
+            $query->latest();
+        } else {
+            $query->whereHas('users', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->latest('updated_at');
+        }
+    }
+
+    private function applyFilters($query, Request $request, User $user): void
+    {
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('code', 'like', "%{$searchTerm}%")
+                  ->orWhere('title', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->priority);
+        }
+
+        if ($request->filled('assignment')) {
+            $this->applyAssignmentFilter($query, $request->assignment, $user);
+        }
+    }
+
+    private function applyAssignmentFilter($query, string $value, User $user)
+    {
+        if ($value === 'involved') {
+            return $query->whereHas('users', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->latest('updated_at');
+        }
+
+        if ($value === 'not_involved') {
+            return $query->whereDoesntHave('users', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+
+        return $query;
     }
 }

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 use App\Models\TicketCategory;
 
+use Illuminate\Support\Str;
+
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Ticket>
  */
@@ -19,11 +21,12 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         return [
+            'code' => 'TCK-' . strtoupper(Str::random(6)),
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
             'status' => $this->faker->randomElement(['open', 'in_progress', 'closed']),
             'priority' => $this->faker->randomElement(['low', 'medium', 'high']),
-            'category_id' => TicketCategory::factory(),
+            'category_id' => TicketCategory::inRandomOrder()->first()?->id,
             'created_at' => now(),
             'updated_at' => now(),
         ];

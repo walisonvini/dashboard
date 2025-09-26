@@ -40,6 +40,7 @@ const scrollToBottom = () => {
 };
 
 const { isTicketClosedOrCanceled } = useTicketStatus(props.ticket);
+
 const { formatStatus, formatPriority, getStatusVariant, getPriorityVariant } = useTicketFormatting();
 const { canComment } = useTicketPermissions(props.authUser);
 
@@ -78,7 +79,7 @@ onMounted(() => {
         <CardHeader class="border-b">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
-                    <CardTitle class="text-base md:text-lg">Ticket #{{ ticket.id }}</CardTitle>
+                    <CardTitle class="text-base md:text-lg">{{ ticket.code }}</CardTitle>
                     <p class="text-xs md:text-sm text-muted-foreground mt-1">{{ ticket.title }}</p>
                 </div>
                 <div class="flex items-center gap-1 md:gap-2">

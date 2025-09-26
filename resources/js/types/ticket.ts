@@ -11,6 +11,7 @@ export interface TicketCategory {
 
 export interface Ticket {
     id: number;
+    code: string;
     title: string;
     description: string;
     status: string;
