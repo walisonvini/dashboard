@@ -25,7 +25,7 @@ FROM php-base AS final
 WORKDIR /var/www/html
 
 COPY . .
-COPY --from=frontend-builder /tmp/build /var/www/html/public/build
+COPY --from=frontend-builder /app/public/build /var/www/html/public/build
 COPY --from=php-deps /app/vendor /var/www/html/vendor
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
