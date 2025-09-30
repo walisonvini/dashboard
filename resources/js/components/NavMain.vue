@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, useSidebar } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
@@ -10,6 +10,7 @@ const props = defineProps<{
 }>();
 
 const page = usePage<SharedData>();
+const { state, setOpen } = useSidebar();
 const openMenus = ref<Record<string, boolean>>({});
 
 const isActive = (href: string) => {
@@ -24,6 +25,10 @@ const isActive = (href: string) => {
 const normalizePath = (path: string) => path.startsWith('/') ? path : `/${path}`;
 
 const toggleSubmenu = (title: string) => {
+    if (state.value === 'collapsed') {
+        setOpen(true);
+    }
+    
     openMenus.value[title] = !openMenus.value[title];
 };
 </script>
@@ -42,9 +47,10 @@ const toggleSubmenu = (title: string) => {
                         <div class="flex items-center justify-between w-full">
                             <div class="flex items-center gap-2">
                                 <component :is="item.icon" class="size-4" />
-                                <span>{{ item.title }}</span>
+                                <span v-if="state !== 'collapsed'">{{ item.title }}</span>
                             </div>
                             <ChevronRight 
+                                v-if="state !== 'collapsed'"
                                 class="size-3 transition-transform duration-200"
                                 :class="{ 'rotate-90': openMenus[item.title] }"
                             />
@@ -58,12 +64,12 @@ const toggleSubmenu = (title: string) => {
                     >
                         <div class="flex items-center gap-2">
                             <component :is="item.icon" class="size-4" />
-                            <span>{{ item.title }}</span>
+                            <span v-if="state !== 'collapsed'">{{ item.title }}</span>
                         </div>
                     </SidebarMenuButton>
                 </Link>
                 
-                <SidebarMenuSub v-if="item.children && openMenus[item.title]">
+                <SidebarMenuSub v-if="item.children && openMenus[item.title] && state !== 'collapsed'">
                     <SidebarMenuSubItem v-for="child in item.children" :key="child.title">
                         <SidebarMenuSubButton 
                             as-child 
