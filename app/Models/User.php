@@ -67,4 +67,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(TicketAttachment::class, 'uploaded_by');
     }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(Log::class);
+    }
 }

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Hash;
-
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,12 +18,9 @@ use App\Services\UserService;
 
 class UserController extends Controller
 {
-    protected $userService;
-
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
-    }
+    public function __construct(
+        private UserService $userService
+    ){}
 
     public function index(Request $request): Response
     {
@@ -51,15 +46,7 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $user->assignRole($request->roles);
-
-        app()['cache']->forget('spatie.permission.cache');
+        $this->userService->create($request);
 
         return to_route('users.index')->with('success', 'User created successfully');
     }
@@ -88,17 +75,7 @@ class UserController extends Controller
             return to_route('users.index')->with('error', 'User cannot be modified');
         }
 
-        $userData = [
-            'name' => $request->name,
-            'email' => $request->email,
-        ];
-
-        if (!empty($request->password)) {
-            $userData['password'] = Hash::make($request->password);
-        }
-
-        $user->update($userData);
-        $user->syncRoles($request->roles);
+        $this->userService->update($user, $request);
 
         return to_route('users.index')->with('success', 'User updated successfully');
     }
@@ -109,7 +86,7 @@ class UserController extends Controller
             return to_route('users.index')->with('error', 'User cannot be deleted');
         }
 
-        $user->delete();
+        $this->userService->delete($user);
 
         return to_route('users.index')->with('success', 'User deleted successfully');
     }
@@ -130,8 +107,7 @@ class UserController extends Controller
 
     public function restore($userId): RedirectResponse
     {
-        $user = User::onlyTrashed()->findOrFail($userId);
-        $user->restore();
+        $this->userService->restore($userId);
 
         return to_route('users.index')->with('success', 'User restored successfully');
     }

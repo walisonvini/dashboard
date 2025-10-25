@@ -62,7 +62,7 @@ This project is an internal company dashboard developed with Laravel, Vue.js and
 
 6. Start containers
     ```bash
-    docker compose up -d
+    docker compose -f docker-compose.override.yml up -d
     ```
 
 7. Access the application container
@@ -85,7 +85,12 @@ This project is an internal company dashboard developed with Laravel, Vue.js and
     php artisan db:seed
     ```
 
-11. Access the application
+11. Start queue workers
+    ```bash
+    php artisan queue:work --queue=default,logs
+    ```
+
+12. Access the application
     ```bash
     # Open your browser and navigate to:
     http://localhost:8000
@@ -132,12 +137,20 @@ This project is an internal company dashboard developed with Laravel, Vue.js and
 
 7. Build frontend assets
     ```bash
+    # Run this in a separate terminal
     npm run dev
     ```
 
 8. Serve the application
     ```bash
+    # Run this in a separate terminal
     php artisan serve
+    ```
+
+9. Start queue workers
+    ```bash
+    # Run this in a separate terminal
+    php artisan queue:work --queue=default,logs
     ```
 
 > 💡 **Development Tip:** For hot module replacement (HMR), run both servers simultaneously:
