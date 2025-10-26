@@ -17,12 +17,9 @@ use App\Services\RoleService;
 
 class RoleController extends Controller
 {
-    protected $roleService;
-
-    public function __construct(RoleService $roleService)
-    {
-        $this->roleService = $roleService;
-    }
+    public function __construct(
+        private RoleService $roleService
+    ){}
 
     public function index(Request $request): Response
     {
@@ -40,18 +37,17 @@ class RoleController extends Controller
 
     public function store(StoreRoleRequest $request): RedirectResponse
     {
-        Role::create($request->all());
+        $this->roleService->create($request->all());
         return back()->with('success', 'Role created successfully');
     }
 
     public function update(UpdateRoleRequest $request, Role $role): RedirectResponse
     {
-
         if (!$this->roleService->veryIfRoleIsModifiable($role->name)) {
             return back()->with('error', 'Role cannot be modified');
         }
 
-        $role->update($request->all());
+        $this->roleService->update($role, $request->all());
         return back()->with('success', 'Role updated successfully');
     }
 
@@ -61,12 +57,7 @@ class RoleController extends Controller
             return back()->with('error', 'Role cannot be deleted');
         }
 
-        $usersWithRole = $role->users;
-        
-        $role->delete();
-
-        $this->roleService->setDefaultRole($usersWithRole);
-
+        $this->roleService->delete($role);
         return back()->with('success', 'Role deleted successfully');
     }
 }

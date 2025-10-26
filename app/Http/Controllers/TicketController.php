@@ -86,11 +86,6 @@ class TicketController extends Controller
     public function update(UpdateTicketRequest $request, Ticket $ticket): RedirectResponse
     {
         try {
-            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
-            {
-                throw new \Exception('Observers cannot modify ticket information.');
-            }
-
             $this->ticketService->updateTicket($ticket, $request->validated());
             return back()->with('success', 'Ticket updated successfully');
         } catch(\Exception $e) {
@@ -138,11 +133,6 @@ class TicketController extends Controller
     public function addUser(Request $request, Ticket $ticket, User $user)
     {
         try {
-            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
-            {
-                throw new \Exception('Observers cannot manage ticket users.');
-            }
-
             $this->ticketService->addUser($ticket, $user, $request->role);
             return back()->with('success', 'User added to ticket successfully');
         } catch(\Exception $e) {
@@ -153,11 +143,6 @@ class TicketController extends Controller
     public function removeUser(Ticket $ticket, User $user)
     {
         try {
-            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
-            {
-                throw new \Exception('Observers cannot manage ticket users.');
-            }
-
             $this->ticketService->removeUser($ticket, $user);
             return back()->with('success', 'User removed from ticket successfully');
         } catch(\Exception $e) {

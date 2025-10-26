@@ -4,11 +4,27 @@ namespace App\Services;
 
 use App\Models\Menu;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 use Illuminate\Support\Collection;
 
+use App\Events\LogActionEvent;
+
 class MenuPermissionService
 {
+    public function create(Role $role, $data): void
+    {
+        $permissions = Permission::whereIn('name', $data->input('permissions'))->pluck('id');
+        $role->permissions()->sync($permissions);
+
+        app()['cache']->forget('spatie.permission.cache');
+
+        event(new LogActionEvent('Role', $role->id, 'permissions_updated', [
+            'role' => $role->only(['id', 'name']),
+            'permissions' => $role->permissions->pluck('name'),
+        ]));
+    }
+
     public function getMenusWithPermissionsForRole(Role $role): Collection
     {
         $rolePermissionIds = $role->permissions->pluck('id');

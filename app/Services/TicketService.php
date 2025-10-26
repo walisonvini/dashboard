@@ -11,10 +11,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+
+use App\Events\LogActionEvent;
 
 class TicketService
 {
-    public function create(array $data, User $user)
+    public function create(array $data, User $user): Ticket
     {
         return DB::transaction(function () use ($data, $user) {
             $ticket = Ticket::create([
@@ -52,29 +55,46 @@ class TicketService
         });
     }
 
-    public function updateTicket(Ticket $ticket, $data)
+    public function updateTicket(Ticket $ticket, $data): Ticket
     {
         if(!$ticket->isOpen() && !auth()->user()->hasPermissionTo('tickets.support')) {
             throw new \Exception('Ticket is not open and cannot be updated');
         }
 
+        $this->canUserEditTicket($ticket, auth()->user());
+
+        $oldData = $ticket->only(['title', 'description', 'category_id', 'priority', 'status']);
+
         $ticket->update($data);
+
+        event(new LogActionEvent('Ticket', $ticket->id, 'updated', [
+            'old' => $oldData,
+            'new' => $ticket->only(['title', 'description', 'category_id', 'priority', 'status'])
+        ]));
 
         return $ticket;
     }
 
-    public function assignTicket(Ticket $ticket)
+    public function assignTicket(Ticket $ticket): void
     {
         if($ticket->users()->where('role', '<>', 'assigned')->where('user_id', auth()->user()->id)->exists()) {
             throw new \Exception('You cannot provide support if you are the requester or already have another role in this ticket');
         }
 
         $ticket->users()->attach(auth()->user()->id, ['role' => 'assigned']);
+
+        event(new LogActionEvent('Ticket', $ticket->id, 'assigned', [
+            'user_id' => auth()->user()->id
+        ]));
     }
 
-    public function unassignTicket(Ticket $ticket)
+    public function unassignTicket(Ticket $ticket): void
     {
         $ticket->users()->detach(auth()->user()->id);
+
+        event(new LogActionEvent('Ticket', $ticket->id, 'unassigned', [
+            'user_id' => auth()->user()->id
+        ]));
     }
 
     public function canAccessTicket(Ticket $ticket): bool
@@ -86,7 +106,7 @@ class TicketService
         return $isUserInTicket || $hasSupportPermission;
     }
 
-    public function showAvailableUsers(Ticket $ticket)
+    public function showAvailableUsers(Ticket $ticket): Collection
     {
         $users = User::permission('tickets.view')
         ->whereDoesntHave('tickets', function ($query) use ($ticket) {
@@ -97,24 +117,33 @@ class TicketService
         return $users;
     }
 
-    public function addUser(Ticket $ticket, User $user, string $role = 'observer')
+    public function addUser(Ticket $ticket, User $user, string $role = 'observer'): Ticket
     {
         if ($ticket->users->contains($user->id)) {
             throw new \Exception('User is already in this ticket.');
         }
 
+        $this->canUserEditTicket($ticket, auth()->user());
+
         $ticket->users()->attach($user->id, ['role' => $role]);
 
         $ticket->load('users');
 
+        event(new LogActionEvent('Ticket', $ticket->id, 'user_added', [
+            'added_user_id' => $user->id,
+            'role' => $role
+        ]));
+
         return $ticket;
     }
 
-    public function removeUser(Ticket $ticket, User $user)
+    public function removeUser(Ticket $ticket, User $user): Ticket
     {
         if (!$ticket->users->contains($user->id)) {
             throw new \Exception('User is not in this ticket.');
         }
+
+        $this->canUserEditTicket($ticket, auth()->user());
 
         $userRole = $ticket->users()->where('user_id', $user->id)->first()->pivot->role;
         
@@ -126,17 +155,25 @@ class TicketService
 
         $ticket->load('users');
 
+        event(new LogActionEvent('Ticket', $ticket->id, 'user_removed', [
+            'removed_user_id' => $user->id,
+            'role' => $userRole
+        ]));
+
         return $ticket;
     }
 
-    public function canUserEditTicket(Ticket $ticket, User $user): bool
+    public function canUserEditTicket(Ticket $ticket, User $user): void
     {
         if(!$ticket->users->contains($user->id)) {
             throw new \Exception('User is not in this ticket.', 403);
         }
 
         $userRole = $ticket->users()->where('user_id', $user->id)->first()?->pivot->role;
-        return !in_array($userRole, ['observer']);
+        
+        if(in_array($userRole, ['observer'])) {
+            throw new \Exception('Observers cannot modify ticket information.', 403);
+        }
     }
 
     public function getPaginatedTicketsForUser(User $user, Request $request): LengthAwarePaginator

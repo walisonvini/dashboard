@@ -17,10 +17,7 @@ class TicketCommentController extends Controller
     public function store(StoreTicketCommentRequest $request, Ticket $ticket): JsonResponse  
     {
         try {
-            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
-            {
-                throw new \Exception('Observers cannot send comments.', 403);
-            }
+            $this->ticketService->canUserEditTicket($ticket, auth()->user());
 
             if($ticket->isClosedOrCanceled()) {
                 throw new \Exception('Ticket is closed or canceled.', 409);

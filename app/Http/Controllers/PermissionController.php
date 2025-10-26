@@ -9,19 +9,15 @@ use Inertia\Response;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 use App\Services\MenuPermissionService;
 
 class PermissionController extends Controller
 {
-    protected $menuPermissionService;
-
-    public function __construct(MenuPermissionService $menuPermissionService)
-    {
-        $this->menuPermissionService = $menuPermissionService;
-    }
+    public function __construct(
+        private MenuPermissionService $menuPermissionService
+    ){}
 
     public function index(): Response
     {
@@ -33,11 +29,7 @@ class PermissionController extends Controller
 
     public function store(Request $request, Role $role): RedirectResponse
     {
-        $permissions = Permission::whereIn('name', $request->input('permissions'))->pluck('id');
-        $role->permissions()->sync($permissions);
-
-        app()['cache']->forget('spatie.permission.cache');
-
+        $this->menuPermissionService->create($role, $request);
         return back()->with('success', 'Permissions updated successfully');
     }
 

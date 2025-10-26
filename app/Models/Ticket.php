@@ -19,7 +19,7 @@ class Ticket extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title', 'description', 'status', 'priority', 'category_id',
+        'code', 'title', 'description', 'status', 'priority', 'category_id',
     ];
 
     protected $casts = [

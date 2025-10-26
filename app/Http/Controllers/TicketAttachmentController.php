@@ -27,11 +27,6 @@ class TicketAttachmentController extends Controller
         }
 
         try {
-            if(!$this->ticketService->canUserEditTicket($ticket, auth()->user()))
-            {
-                throw new \Exception('Observers cannot upload files', 403);
-            }
-
             $attachments = $this->attachmentService->uploadFiles($ticket, $files);
 
             return response()->json([

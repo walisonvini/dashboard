@@ -17,12 +17,9 @@ use Illuminate\Database\QueryException;
 
 class TicketCategoryController extends Controller
 {
-    protected $ticketCategoryService;
-
-    public function __construct(TicketCategoryService $ticketCategoryService)
-    {
-        $this->ticketCategoryService = $ticketCategoryService;
-    }
+    public function __construct(
+        private TicketCategoryService $ticketCategoryService
+    ){}
 
     public function index(Request $request): Response
     {
@@ -40,20 +37,20 @@ class TicketCategoryController extends Controller
 
     public function store(StoreTicketCategoryRequest $request): RedirectResponse
     {
-        TicketCategory::create($request->all());
+        $this->ticketCategoryService->create($request->all());
         return to_route('ticket-categories.index')->with('success', 'Category created successfully');
     }
 
     public function update(UpdateTicketCategoryRequest $request, TicketCategory $category): RedirectResponse
     {
-        $category->update($request->all());
+        $this->ticketCategoryService->update($category, $request->all());
         return to_route('ticket-categories.index')->with('success', 'Category updated successfully');
     }
 
     public function destroy(TicketCategory $category): RedirectResponse
     {
         try {
-            $category->delete();
+            $this->ticketCategoryService->delete($category);
             return to_route('ticket-categories.index')->with('success', 'Category deleted successfully');
         } catch (QueryException $e) {
             if ($e->getCode() == 23000) {
@@ -79,13 +76,13 @@ class TicketCategoryController extends Controller
 
     public function deactivate(TicketCategory $category): RedirectResponse
     {
-        $category->update(['is_active' => false]);
+        $this->ticketCategoryService->deactivate($category);
         return to_route('ticket-categories.index')->with('success', 'Category deactivated successfully');
     }
 
     public function reactivate(TicketCategory $category): RedirectResponse
     {
-        $category->update(['is_active' => true]);
+        $this->ticketCategoryService->reactivate($category);
         return to_route('ticket-categories.index')->with('success', 'Category reactivated successfully');
     }
 }

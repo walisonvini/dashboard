@@ -73,7 +73,7 @@ class TicketCommentTest extends TestCase
         $response->assertJson([
             'status' => 'error',
             'message' => 'Could not send comment.',
-            'error' => 'Observers cannot send comments.',
+            'error' => 'Observers cannot modify ticket information.',
         ]);
     }
 
