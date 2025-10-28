@@ -21,6 +21,7 @@ class PermissionSeeder extends Seeder
             'permissions' => ['view', 'create', 'edit', 'delete'],
             'tickets' => ['view', 'create', 'edit', 'delete', 'support'],
             'ticket-categories' => ['view', 'create', 'edit', 'delete'],
+            'logs' => ['view', 'show'],
         ];
 
         foreach ($permissionGroups as $prefix => $actions) {

@@ -48,6 +48,7 @@ class MenuPermissionSeeder extends Seeder
                 'ticket-categories.edit',
                 'ticket-categories.delete',
             ],
+            'Logs' => ['logs.view', 'logs.show'],
         ];
 
         foreach ($map as $menuName => $permissions) {

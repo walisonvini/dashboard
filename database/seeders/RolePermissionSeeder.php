@@ -21,6 +21,7 @@ class RolePermissionSeeder extends Seeder
             'permissions' => ['permissions.view', 'permissions.create', 'permissions.edit', 'permissions.delete'],
             'tickets' => ['tickets.view', 'tickets.create', 'tickets.edit', 'tickets.delete', 'tickets.support'],
             'ticket-categories' => ['ticket-categories.view', 'ticket-categories.create', 'ticket-categories.edit', 'ticket-categories.delete'],
+            'logs' => ['logs.view', 'logs.show'],
         ];
 
         $super = Role::where('name', 'super')->first();

@@ -67,5 +67,12 @@ class MenuSeeder extends Seeder
             'route' => 'ticket-categories',
             'parent_id' => $serviceDesk->id,
         ]);
+
+        Menu::create([
+            'name' => 'Logs',
+            'icon' => 'ClipboardList',
+            'route' => 'logs',
+            'parent_id' => null,
+        ]);
     }   
 }

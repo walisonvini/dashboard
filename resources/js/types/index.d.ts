@@ -50,4 +50,16 @@ export interface PaginationData {
     total: number;
 }
 
+export interface Log {
+    id: number;
+    user: User;
+    user_id: number;
+    model_id: number;
+    model: string;
+    action: string;
+    data: [];
+    ip_address: string;
+    created_at: string;
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;
