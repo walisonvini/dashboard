@@ -19,8 +19,15 @@ class LogController extends Controller
 
     public function index(Request $request): Response
     {
+        $logs = $this->logService->getPaginatedLogs($request);
+
         return Inertia::render('logs/Index', [
-                'logs' => $this->logService->get(),
+                'logs' => $logs->items(),
+                'pagination' => [
+                    'current_page' => $logs->currentPage(),
+                    'per_page' => $logs->perPage(),
+                    'total' => $logs->total(),
+                ]
             ]
         );
     }
