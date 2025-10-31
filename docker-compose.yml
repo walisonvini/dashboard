@@ -29,6 +29,20 @@ services:
     networks:
       - dashboard
 
+  schedule:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: dashboard_schedule
+    depends_on:
+      - db
+    env_file:
+      - .env
+    command: php artisan schedule:work
+    restart: always
+    networks:
+      - dashboard
+
   db:
     image: mysql:8.0
     container_name: dashboard_db
