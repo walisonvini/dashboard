@@ -187,6 +187,16 @@ class TicketService
         return $query->paginate(10);
     }
 
+    public function getPaginatedCommentsForTicket(Ticket $ticket): LengthAwarePaginator
+    {
+        $query = $ticket->comments()
+            ->select(['id', 'ticket_id', 'user_id', 'comment', 'created_at'])
+            ->with('user:id,name,email')
+            ->latest();
+
+        return $query->paginate(20);
+    }
+
     private function applyUserPermissions($query, User $user): void
     {
         if ($user->hasPermissionTo('tickets.support')) {

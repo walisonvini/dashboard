@@ -14,6 +14,7 @@ Route::middleware('auth')->group(function () {
     Route::put('tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update')->middleware('permission:tickets.edit');
 
     Route::post('tickets/{ticket}/comments', [TicketCommentController::class, 'store'])->name('tickets.comments.store')->middleware('permission:tickets.view');
+    Route::get('tickets/{ticket}/comments', [TicketCommentController::class, 'show'])->name('tickets.comments.show')->middleware('permission:tickets.view');
     Route::post('tickets/{ticket}/attachments', [TicketAttachmentController::class, 'store'])->name('tickets.attachments.store')->middleware('permission:tickets.view');
     Route::get('tickets/attachments/{attachment}/download', [TicketAttachmentController::class, 'download'])->name('tickets.attachments.download')->middleware('permission:tickets.view');
 

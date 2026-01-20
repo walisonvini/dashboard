@@ -40,4 +40,23 @@ class TicketCommentController extends Controller
             ], $e->getCode());
         }
     }
+
+    public function show(Ticket $ticket): JsonResponse
+    {
+        try {
+            if (!$this->ticketService->canAccessTicket($ticket)) {
+                throw new \Exception('User cannot access this ticket.', 403);
+            }
+
+            $comments = $this->ticketService->getPaginatedCommentsForTicket($ticket, request());
+
+            return response()->json($comments, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Could not retrieve comments.',
+                'error' => $e->getMessage()
+            ], $e->getCode() ?: 500);
+        }
+    }
 }

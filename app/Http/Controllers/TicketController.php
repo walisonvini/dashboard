@@ -71,7 +71,7 @@ class TicketController extends Controller
         $userRole = $ticket->users()->where('user_id', $authUser->id)->first()?->pivot->role ?? null;
 
         return Inertia::render('tickets/Edit', [
-            'ticket' => $ticket->load(['category', 'comments.user', 'attachments.uploader', 'users']),
+            'ticket' => $ticket->load(['category', 'attachments.uploader', 'users']),
             'categories' => $categories,
             'isSupport' => $authUser->hasPermissionTo('tickets.support'),
             'authUser' => [

@@ -21,14 +21,16 @@ import axios from 'axios';
 
 interface Props {
     ticket: Ticket;
-    comments: TicketComment[];
     authUser: authUser;
 }
 
 const props = defineProps<Props>();
 const newMessage = ref('');
-const localComments = ref<TicketComment[]>([...props.comments]);
+const localComments = ref<TicketComment[]>([]);
 const messagesContainer = ref<HTMLElement>();
+const currentPage = ref(1);
+const hasMoreComments = ref(true);
+const isLoadingComments = ref(false);
 const { error: showError } = useToast();
 
 const scrollToBottom = () => {
@@ -37,6 +39,71 @@ const scrollToBottom = () => {
             messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
         }
     });
+};
+
+const handleScroll = () => {
+    if (!messagesContainer.value || isLoadingComments.value || !hasMoreComments.value) return;
+    
+    if (messagesContainer.value.scrollTop < 100) {
+        loadMoreComments();
+    }
+};
+
+const loadComments = async () => {
+    isLoadingComments.value = true;
+    
+    try {
+        const { data } = await axios.get(route('tickets.comments.show', { ticket: props.ticket.id }));
+        
+        if (data.data && data.data.length > 0) {
+            localComments.value = data.data.reverse();
+            currentPage.value = data.current_page;
+            hasMoreComments.value = data.current_page < data.last_page;
+        } else {
+            hasMoreComments.value = false;
+        }
+        
+        scrollToBottom();
+    } catch (error: any) {
+        console.error('Error fetching comments:', error);
+        showError('Error', error.response?.data?.message || 'Error fetching comments');
+    } finally {
+        isLoadingComments.value = false;
+    }
+};
+
+const loadMoreComments = async () => {
+    if (isLoadingComments.value || !hasMoreComments.value) return;
+    
+    const previousScrollHeight = messagesContainer.value?.scrollHeight || 0;
+    
+    isLoadingComments.value = true;
+    
+    try {
+        const { data } = await axios.get(route('tickets.comments.show', { ticket: props.ticket.id }), {
+            params: { page: currentPage.value + 1 }
+        });
+        
+        if (data.data && data.data.length > 0) {
+            localComments.value.unshift(...data.data.reverse());
+            currentPage.value = data.current_page;
+            hasMoreComments.value = data.current_page < data.last_page;
+            
+            nextTick(() => {
+                if (messagesContainer.value) {
+                    const newScrollHeight = messagesContainer.value.scrollHeight;
+                    messagesContainer.value.scrollTop = newScrollHeight - previousScrollHeight;
+                }
+            });
+        } else {
+            hasMoreComments.value = false;
+        }
+    } catch (error: any) {
+        console.error('Error fetching comments:', error);
+        showError('Error', error.response?.data?.message || 'Error fetching comments');
+    } finally {
+        isLoadingComments.value = false;
+    }
 };
 
 const { isTicketClosedOrCanceled } = useTicketStatus(props.ticket);
@@ -70,7 +137,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
 };
 
 onMounted(() => {
-    scrollToBottom();
+    loadComments();
 });
 </script>
 
@@ -105,7 +172,13 @@ onMounted(() => {
                 ref="messagesContainer"
                 class="flex-1 p-2 md:p-4 space-y-4 overflow-y-auto min-h-0" 
                 style="max-height: 60vh;"
+                @scroll="handleScroll"
             >
+                <!-- Loading Indicator -->
+                <div v-if="isLoadingComments" class="flex justify-center py-2">
+                    <span class="text-xs text-muted-foreground">Loading...</span>
+                </div>
+
                 <div
                     v-for="comment in localComments"
                     :key="comment.id"
