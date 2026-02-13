@@ -4,16 +4,14 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     container_name: dashboard_web
+    restart: always
     depends_on:
       - db
-    restart: always
     env_file:
       - .env
     networks:
       - dashboard
       - proxy-net
-    volumes:
-      - dashboard_build_assets:/var/www/html/public/build
 
   queue:
     build:
@@ -66,5 +64,3 @@ networks:
 
 volumes:
   db_data:
-  dashboard_build_assets:
-    name: dashboard_build_assets

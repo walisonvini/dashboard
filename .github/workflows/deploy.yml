@@ -22,6 +22,13 @@ jobs:
           script: |
             cd /root/projects/dashboard
             git pull origin main
+
+            docker run --rm \
+              -v "$PWD:/app" \
+              -w /app \
+              node:23-bullseye \
+              sh -c "npm ci && npm run build"
+
             docker compose -f docker-compose.yml build
             docker compose -f docker-compose.yml up -d
             docker exec dashboard_web php artisan migrate --force
