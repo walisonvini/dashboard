@@ -1,3 +1,0 @@
-FROM node:23-bullseye
-
-WORKDIR /var/www/html

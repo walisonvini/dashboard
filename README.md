@@ -55,42 +55,37 @@ This project is an internal company dashboard developed with Laravel, Vue.js and
     npm install
     ```
 
-5. Build Docker images
+5. Build the images and start the containers:
     ```bash
-    docker compose build
+    docker compose -f compose.dev.yaml up -d --build
     ```
 
-6. Start containers
-    ```bash
-    docker compose -f docker-compose.override.yml up -d
-    ```
-
-7. Access the application container
+6. Access the application container
     ```bash
     docker exec -it dashboard_web bash
     ```
 
-8. Generate application key
+7. Generate application key
     ```bash
     php artisan key:generate
     ```
 
-9. Run database migrations
+8. Run database migrations
     ```bash
     php artisan migrate
     ```
 
-10. Seed the database
+9. Seed the database
     ```bash
     php artisan db:seed
     ```
 
-11. Start queue workers
+10. Start queue workers
     ```bash
     php artisan queue:work --queue=default,logs
     ```
 
-12. Access the application
+11. Access the application
     ```bash
     # Open your browser and navigate to:
     http://localhost:8000

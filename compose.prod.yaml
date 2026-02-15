@@ -2,42 +2,60 @@ services:
   web:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: ./docker/production/nginx/Dockerfile
     container_name: dashboard_web
-    restart: always
+    restart: unless-stopped
+    volumes:
+      - storage-production:/var/www/storage:ro
+    networks:
+      - dashboard
+      - proxy-net
     depends_on:
-      - db
+      - php-fpm
+
+  php-fpm:
+    build:
+      context: .
+      dockerfile: ./docker/production/php-fpm/Dockerfile
+      target: production
+    container_name: dashboard_php-fpm
+    restart: unless-stopped
+    volumes:
+      - storage-production:/var/www/storage
     env_file:
       - .env
     networks:
       - dashboard
-      - proxy-net
+    depends_on:
+      - db
 
   queue:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: ./docker/production/php-fpm/Dockerfile
+      target: production
     container_name: dashboard_queue
+    restart: unless-stopped
     depends_on:
       - db
     env_file:
       - .env
     command: php artisan queue:work --queue=default,logs --sleep=3 --tries=3 --timeout=90
-    restart: always
     networks:
       - dashboard
 
   schedule:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: ./docker/production/php-fpm/Dockerfile
+      target: production
     container_name: dashboard_schedule
+    restart: unless-stopped
     depends_on:
       - db
     env_file:
       - .env
     command: php artisan schedule:work
-    restart: always
     networks:
       - dashboard
 
@@ -53,7 +71,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
-    restart: always
+    restart: unless-stopped
     networks:
       - dashboard
 
@@ -64,3 +82,4 @@ networks:
 
 volumes:
   db_data:
+  storage-production:

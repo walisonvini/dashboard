@@ -2,7 +2,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile.dev
+      dockerfile: docker/development/php/Dockerfile
     container_name: dashboard_web
     working_dir: /var/www/html
     ports:
@@ -17,9 +17,7 @@ services:
       - dashboard
 
   node:
-    build:
-      context: .
-      dockerfile: docker/node/Dockerfile.dev
+    image: node:23-bullseye
     container_name: dashboard_node
     working_dir: /var/www/html
     ports:
