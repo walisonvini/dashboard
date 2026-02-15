@@ -24,4 +24,3 @@ jobs:
             git pull origin main
 
             docker compose -f compose.prod.yaml up --build -d
-            docker exec dashboard_web php artisan migrate --force
